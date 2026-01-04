@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model maintenance_notes {
+  id          String    @id @db.Uuid
+  priority    String?   @db.VarChar(80)
+  title       String?   @db.VarChar(80)
+  description String?   @db.VarChar(80)
+  profile_id  String?   @db.Uuid
+  created_at  DateTime? @db.Timestamp(6)
+  profiles    profiles? @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model profiles {
+  id                String              @id @db.Uuid
+  user_id           String?             @db.Uuid
+  name              String?             @db.VarChar(80)
+  role              String?             @db.VarChar(80)
+  maintenance_notes maintenance_notes[]
+  users             users?              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  id         String     @id @db.Uuid
+  email      String?    @db.VarChar(80)
+  password   String?    @db.VarChar(80)
+  active     Boolean?
+  created_at DateTime?  @db.Timestamp(6)
+  profiles   profiles[]
+}
