@@ -12,16 +12,30 @@ try {
     });
     const res = await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-        id UUID,
+        id UUID PRIMARY KEY,
         email varchar(80),
         password varchar(80),
-        type varchar(80),
-        active boolean
+        active boolean,
+        created_at timestamp
+    );
+
+    CREATE TABLE IF NOT EXISTS profiles (
+        id UUID PRIMARY KEY,
+        user_id UUID REFERENCES users(id),
+        name varchar(80),
+        role varchar(80)
+    );
+
+    CREATE TABLE IF NOT EXISTS maintenance_notes (
+        id UUID PRIMARY KEY,
+        priority varchar(80),
+        title varchar(80),
+        description varchar(80),
+        profile_id UUID REFERENCES profiles(id),
+        created_at timestamp
     );
     
 `);
-console.log(res.rows[0]);
 } catch (error) {
-    console.log(error.message);
+    console.log(error);
 }
-
