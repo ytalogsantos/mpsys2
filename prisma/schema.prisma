@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,7 +8,7 @@ datasource db {
 }
 
 model maintenance_notes {
-  id          String    @id @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   priority    String?   @db.VarChar(80)
   title       String?   @db.VarChar(80)
   description String?   @db.VarChar(80)
@@ -18,7 +18,7 @@ model maintenance_notes {
 }
 
 model profiles {
-  id                String              @id @db.Uuid
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id           String?             @db.Uuid
   name              String?             @db.VarChar(80)
   role              String?             @db.VarChar(80)
@@ -27,7 +27,7 @@ model profiles {
 }
 
 model users {
-  id         String     @id @db.Uuid
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email      String?    @db.VarChar(80)
   password   String?    @db.VarChar(80)
   active     Boolean?
