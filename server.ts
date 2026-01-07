@@ -1,5 +1,4 @@
-import { posix } from "node:path";
-import { prisma } from "./src/config/db";
+import { prisma } from "./src/config/db.js";
 
 async function main() {
     // const newUser = await prisma.users.create({
@@ -25,4 +24,4 @@ main()
     console.error(e);
     await prisma.$disconnect();
     process.exit(1);
-})
+});
