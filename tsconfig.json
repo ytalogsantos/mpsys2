@@ -2,13 +2,13 @@
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
-    "baseUrl": ".",
+    "baseUrl": "./",
     "rootDirs": ["src", "generated"],
     "outDir": "./dist",
     
     "paths": {
-      "@*": ["./*"],
-      "@src/*": ["src/*"]
+      "config/*": ["./src/config/*"],
+      "repositories/*": ["./src/repositories/*"],
     },
 
     // Environment Settings

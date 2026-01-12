@@ -1,6 +1,8 @@
 export interface Data {
-    email: string,
-    password: string
+    data: {
+        email: string,
+        password: string
+    }
 }
 
 export interface ReturnData {
@@ -10,7 +12,7 @@ export interface ReturnData {
 }
 
 export interface CrudOperations {
-    create(data: Data): ReturnData;
+    create(data: Data): Promise<ReturnData>;
     read(data: string): ReturnData;
     update(id: string, data: Data): boolean
     delete(id: string): boolean

@@ -1,7 +1,8 @@
-import type { users } from "@generated/prisma/browser.js";
-import type { Prisma } from "@generated/prisma/client.js";
-import { prisma } from "@src/config/db.js";
+import { prisma } from "../config/db.js";
+import { BaseRepository } from "./base-repository.js";
 
-export class UserRepository {
-    
+export class UserRepository extends BaseRepository<typeof prisma.users> {
+    constructor() {
+        super(prisma.users);
+    };
 }
