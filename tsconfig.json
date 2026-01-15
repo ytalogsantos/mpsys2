@@ -9,6 +9,11 @@
     "paths": {
       "config/*": ["./src/config/*"],
       "repositories/*": ["./src/repositories/*"],
+      "models/*": ["./src/models/*"],
+      "interfaces/*": ["./src/interfaces/*"],
+      "services/*": ["./src/services/*"],
+      "controllers/*": ["./src/controllers/*"],
+      "routes/*": ["./src/routes/*"],
     },
 
     // Environment Settings

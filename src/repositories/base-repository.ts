@@ -1,6 +1,6 @@
 import type { Data } from "../repositories/interfaces/crud.js";
 
-interface modelConstraints {
+export interface modelConstraints {
     create: Function,
     findUnique: Function;
     findMany: Function
