@@ -7,19 +7,20 @@
     "outDir": "./dist",
     
     "paths": {
-      "config/*": ["./src/config/*"],
-      "repositories/*": ["./src/repositories/*"],
-      "models/*": ["./src/models/*"],
-      "interfaces/*": ["./src/interfaces/*"],
-      "services/*": ["./src/services/*"],
-      "controllers/*": ["./src/controllers/*"],
-      "routes/*": ["./src/routes/*"],
+      "@config/*": ["src/config/*"],
+      "@repositories/*": ["src/repositories/*"],
+      "@models/*": ["src/models/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@services/*": ["src/services/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@routes/*": ["src/routes/*"],
     },
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
+    "moduleResolution": "nodenext",
     "types": [],
 
     // Other Outputs
@@ -39,5 +40,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  
 }
