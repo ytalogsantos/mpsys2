@@ -1,5 +1,3 @@
-import type { prisma } from "config/db.js";
-
 interface modelConstraints {
     create: Function
 }

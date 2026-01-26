@@ -14,7 +14,7 @@ model maintenance_notes {
   title       String?   @db.VarChar(80)
   description String?   @db.VarChar(80)
   profile_id  String?   @db.Uuid
-  created_at  DateTime? @db.Timestamp(6)
+  created_at  DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
   profiles    profiles? @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -32,6 +32,6 @@ model users {
   email      String?    @db.VarChar(80)
   password   String?    @db.VarChar(80)
   active     Boolean?   @default(true)
-  created_at DateTime?  @db.Timestamp(6)
+  created_at DateTime?  @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
   profiles   profiles[]
 }

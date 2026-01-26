@@ -14,6 +14,8 @@
       "@services/*": ["src/services/*"],
       "@controllers/*": ["src/controllers/*"],
       "@routes/*": ["src/routes/*"],
+      "@generated/*": ["src/generated/*"],
+      "@src/*": ["src/*"]
     },
 
     // Environment Settings
