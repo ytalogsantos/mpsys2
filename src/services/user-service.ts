@@ -1,5 +1,5 @@
-import { prisma } from "@config/db";
-import { BaseService } from "@services/base-service";
+import { prisma } from "../config/db.js";
+import { BaseService } from "./base-service.js";
 
 export class UserService extends BaseService<typeof prisma.users> {
     constructor() {

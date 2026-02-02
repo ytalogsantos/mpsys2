@@ -5,23 +5,24 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx server.ts"
+    "build": "npx tsc",
+    "dev": " node -r tsconfig-paths/register dist/server.js"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "pg": "^8.16.3"
+    "pg": "^8.18.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.2.0",
     "@types/pg": "^8.16.0",
-    "prisma": "^6.19.2",
+    "prisma": "^7.3.0",
     "typescript": "^5.9.3"
   }
 }
