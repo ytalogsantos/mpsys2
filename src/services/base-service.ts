@@ -1,18 +1,14 @@
-interface modelConstraints {
+interface ModelConstraints {
     create: Function
 }
+ 
+export abstract class BaseService<ModelDelegate extends ModelConstraints, CreateInput> {
+    constructor(private readonly model: ModelDelegate) {}
 
-interface Data {
-    email: string,
-    password: string,
-}
-
-export abstract class BaseService<T extends modelConstraints> {
-    constructor(private readonly model: T) {}
-
-    public async create(data: Data): Promise<T> {
+    public async create(data: CreateInput): Promise<ModelDelegate> {
         try {
-            return await this.model.create(data);
+            console.log(this.model);
+            return await this.model.create({ data });
         } catch (e: unknown) {
             console.error(e);
             throw new Error("Something went wrong :/");
