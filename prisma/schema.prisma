@@ -28,7 +28,7 @@ model profiles {
 
 model users {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email      String?    @db.VarChar(80)
+  email      String?    @unique(map: "unique_user_email") @db.VarChar(80)
   password   String?    @db.VarChar(80)
   active     Boolean?   @default(true)
   created_at DateTime?  @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
