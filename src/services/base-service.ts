@@ -19,7 +19,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async get(identifier: ModelCreateInput): Promise<ModelDelegate | null> {
+    public async get(identifier: ModelCreateInput | string): Promise<ModelDelegate | null> {
 
         if (!identifier) {
             console.error("Invalid identifier.");
@@ -63,15 +63,15 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
 
         try {
-            const existingEntity = await this.get(data);
+            const existingEntity = await this.get(identifier);
             if (!existingEntity) {
-                console.error("User not found. Please, go to the registration account if you want to create one.");
+                console.error("User not found. Please, create an account or check if the data is correct.");
                 return null;
             }
 
             this.model.update({
                 where: {
-                    email: identifier,
+                    id: identifier,
                 },
                 data: data
             });
@@ -81,7 +81,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async delete(identifier: ModelCreateInput): Promise<void | null> {
+    public async delete(identifier: ModelCreateInput | string): Promise<void | null> {
         if (!identifier) {
             console.error("Identifier missing.");
             return null;
@@ -93,7 +93,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
                 console.error("Entity not found.");
                 return null;
             }
-            await this.model.delete({ email: identifier });
+            await this.model.delete({ id: identifier });
             console.log("Entity deleted successfully.");
         } catch (e: unknown) {
             throw new Error(`Internal error: ${e}`);

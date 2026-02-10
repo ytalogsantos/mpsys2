@@ -31,4 +31,88 @@ export class UserController {
         }
     }
 
+    get: RequestHandler = async (req: Request, res: Response) => {
+        const { email } = req.body;
+
+        if (!email) {
+            console.error("Identifier missing.");
+            return res.status(400).json({message: "Identifier missing"});
+        }
+
+        try {
+            const user = await this.service.get({email});
+            if (!user) {
+                console.log("No user was found.");
+                return res.status(404).json({message: "User not found."});    
+            }
+            return res.status(200).json({user});
+        } catch (e: unknown) {
+            console.error(`Internal error: ${e}`);
+            return res.status(500).json({message: `Internal error.`});
+        }
+    }
+
+    getAll: RequestHandler = async (req: Request, res: Response) => {
+        try {
+            const users = await this.service.getAll();
+            if (!users) {
+                console.log("No users were found.");
+                return res.status(404).json({message: "No users were found."});
+            }
+            return res.status(200).json({users})
+
+        } catch (e: unknown) {
+            console.error(`Internal error: ${e}`);
+            return res.status(500).json({message: `Internal error.`});
+        }
+    }
+
+    update: RequestHandler = async (req: Request, res: Response) => {
+        const id = req.params.id || "";
+        const { email, password } = req.body;
+
+        if (!id) {
+            console.error("Identifier missing.");
+            return res.status(400).json({message: "Identifier missing."});
+        }
+
+        if (!email && !password) {
+            console.error("Data for update must be provided.");
+            return res.status(400).json({message: "Please, provide the data for updating."});
+        }
+
+        try {
+            const user = await this.service.get({id});
+            if (!user) {
+                console.error("User not found.");
+                return res.status(404).json({message: "User not found, please create an account or check the data provided."});
+            }
+
+            await this.service.update(id, {email, password});
+
+        } catch (e: unknown) {
+            console.error(`Internal error ${e}`);
+            return res.status(500).json({message: "Internal error."});
+        }
+    }
+
+    delete: RequestHandler = async (req: Request, res: Response) => {
+        const id = req.params.id || "";
+        
+        try {
+            const user = await this.service.get({id});
+            if (!user) {
+                console.error("User not found.");
+                return res.status(404).json({message: "User not found."});
+            }
+
+            await this.service.delete(id);
+            return res.status(200).json({message: "User deleted successfully."});
+
+        } catch (e: unknown) {
+            console.error(`Internal error ${e}`);
+            return res.status(500).json({message: "Internal error."});
+        }
+    }
+
 }
