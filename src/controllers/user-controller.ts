@@ -1,4 +1,4 @@
-import { UserService } from "@services/user-service.js";
+import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
 
 export class UserController {
@@ -9,7 +9,7 @@ export class UserController {
         this.service = service;
     }
 
-    create: RequestHandler = async (req, res) => {
+    create: RequestHandler = async (req: Request, res: Response) => {
         const { email, password } = req.body;
 
         if (!email || !password) {

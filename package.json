@@ -9,7 +9,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
-    "dev": " node -r tsconfig-paths/register dist/server.js"
+    "dev": "npx tsc && node dist/server.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",

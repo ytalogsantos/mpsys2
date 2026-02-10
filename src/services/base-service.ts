@@ -3,23 +3,23 @@ import type { ModelConstraints } from "./interfaces/model-constraints.js";
 export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelCreateInput> {
     constructor(private readonly model: ModelDelegate) { }
 
-    public async create(data: ModelCreateInput): Promise<ModelDelegate> {
+    public async create(input: ModelCreateInput): Promise<ModelDelegate> {
         try {
-            const existingEntity = await this.get({ data });
+            const existingEntity = await this.get(input);
 
             if (existingEntity) {
                 console.error("Entity already exists.");
                 return existingEntity;
             }
 
-            return await this.model.create({ data });
+            return await this.model.create({data: input});
         } catch (e: unknown) {
             console.error(e);
             throw new Error("Something went wrong :/");
         }
     }
 
-    public async get(identifier: object): Promise<ModelDelegate | null> {
+    public async get(identifier: ModelCreateInput): Promise<ModelDelegate | null> {
 
         if (!identifier) {
             console.error("Invalid identifier.");
@@ -56,14 +56,14 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async update(identifier: string, data: object): Promise<void | null> {
+    public async update(identifier: string, data: ModelCreateInput): Promise<void | null> {
         if (!identifier || !data) {
             console.error("Information missing. Please, inform the identifier and data to proceed.");
             return null;
         }
 
         try {
-            const existingEntity = await this.get({ email: identifier });
+            const existingEntity = await this.get(data);
             if (!existingEntity) {
                 console.error("User not found. Please, go to the registration account if you want to create one.");
                 return null;
@@ -81,14 +81,14 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async delete(identifier: string): Promise<void | null> {
+    public async delete(identifier: ModelCreateInput): Promise<void | null> {
         if (!identifier) {
             console.error("Identifier missing.");
             return null;
         }
 
         try {
-            const existingEntity = await this.get({ email: identifier });
+            const existingEntity = await this.get(identifier);
             if (!existingEntity) {
                 console.error("Entity not found.");
                 return null;
