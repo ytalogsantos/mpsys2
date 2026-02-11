@@ -32,15 +32,15 @@ export class UserController {
     }
 
     get: RequestHandler = async (req: Request, res: Response) => {
-        const { email } = req.body;
+        const id = req.params.id;
 
-        if (!email) {
+        if (!id) {
             console.error("Identifier missing.");
             return res.status(400).json({message: "Identifier missing"});
         }
 
         try {
-            const user = await this.service.get({email});
+            const user = await this.service.get({id});
             if (!user) {
                 console.log("No user was found.");
                 return res.status(404).json({message: "User not found."});    
