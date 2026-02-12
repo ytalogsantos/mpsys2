@@ -19,8 +19,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async get(identifier: ModelCreateInput | string): Promise<ModelDelegate | null> {
-
+    public async get(identifier: ModelCreateInput | string | object): Promise<ModelDelegate | null> {
         if (!identifier) {
             console.error("Invalid identifier.");
             return null;
@@ -63,13 +62,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
 
         try {
-            const existingEntity = await this.get(identifier);
-            if (!existingEntity) {
-                console.error("User not found. Please, create an account or check if the data is correct.");
-                return null;
-            }
-
-            this.model.update({
+            await this.model.update({
                 where: {
                     id: identifier,
                 },

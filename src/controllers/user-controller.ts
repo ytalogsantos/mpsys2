@@ -1,5 +1,6 @@
 import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
+import { InputFilter } from "../tools/input-filter.js";
 
 export class UserController {
 
@@ -68,15 +69,16 @@ export class UserController {
     }
 
     update: RequestHandler = async (req: Request, res: Response) => {
-        const id = req.params.id || "";
-        const { email, password } = req.body;
+        const id: string  = req.params.id || "";
+        const body: object = req.body;
+        const filteredInput: object | boolean = InputFilter(body);
 
         if (!id) {
             console.error("Identifier missing.");
             return res.status(400).json({message: "Identifier missing."});
         }
 
-        if (!email && !password) {
+        if (Object.keys(filteredInput).length == 0) {
             console.error("Data for update must be provided.");
             return res.status(400).json({message: "Please, provide the data for updating."});
         }
@@ -88,7 +90,8 @@ export class UserController {
                 return res.status(404).json({message: "User not found, please create an account or check the data provided."});
             }
 
-            await this.service.update(id, {email, password});
+            await this.service.update(id, filteredInput);
+            return res.status(200).json({message: "User updated successfully."});
 
         } catch (e: unknown) {
             console.error(`Internal error ${e}`);
