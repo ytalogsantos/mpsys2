@@ -3,13 +3,13 @@ import type { ModelConstraints } from "./interfaces/model-constraints.js";
 export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelCreateInput> {
     constructor(private readonly model: ModelDelegate) { }
 
-    public async create(input: ModelCreateInput): Promise<ModelDelegate> {
+    public async create(input: ModelCreateInput): Promise<ModelDelegate | boolean> {
         try {
             const existingEntity = await this.get(input);
 
             if (existingEntity) {
                 console.error("Entity already exists.");
-                return existingEntity;
+                return false;
             }
 
             return await this.model.create({data: input});
