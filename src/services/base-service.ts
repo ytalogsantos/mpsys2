@@ -81,12 +81,16 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
 
         try {
-            const existingEntity = await this.get(identifier);
+            const existingEntity = await this.get({id: identifier});
             if (!existingEntity) {
                 console.error("Entity not found.");
                 return null;
             }
-            await this.model.delete({ id: identifier });
+            await this.model.delete({
+                where: {
+                    id: identifier
+                }
+            });
             console.log("Entity deleted successfully.");
         } catch (e: unknown) {
             throw new Error(`Internal error: ${e}`);
