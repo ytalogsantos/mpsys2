@@ -1,6 +1,7 @@
 import { ProfileService } from "../services/profile-service.js";
 import type { RequestHandler, Request, Response } from "express";
 import { InputFilter } from "../tools/input-filter.js";
+import { Prisma } from "../../generated/prisma/client.js";
 
 export class ProfileController {
     private readonly service: ProfileService;
@@ -12,8 +13,8 @@ export class ProfileController {
 
     create: RequestHandler = async (req: Request, res: Response) => {
         const body: object = req.body;
-        const data: object = InputFilter(body);
-
+        const data: Prisma.profilesCreateInput = InputFilter(body);
+       
         if (Object.keys(data).length === 0) {
             console.error("Data must be provided.");
             return res.status(400).json({message: "Data must be provided."});

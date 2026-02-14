@@ -6,9 +6,4 @@ export class ProfileService extends BaseService<typeof prisma.profiles, Prisma.p
     constructor() {
         super(prisma.profiles);
     }
-
-    // public override async create(input: Prisma.profilesCreateInput): Promise<typeof prisma.profiles | boolean> {
-
-    // }
-
 }
