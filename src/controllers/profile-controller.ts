@@ -12,8 +12,9 @@ export class ProfileController {
     }
 
     create: RequestHandler = async (req: Request, res: Response) => {
-        const body: object = req.body;
-        const data: Prisma.profilesCreateInput = InputFilter(body);
+        const body: Prisma.profilesCreateInput = req.body;
+        
+        const data: Prisma.profilesCreateInput = body; //InputFilter(body);
        
         if (Object.keys(data).length === 0) {
             console.error("Data must be provided.");

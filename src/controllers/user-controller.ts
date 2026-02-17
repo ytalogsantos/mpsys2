@@ -1,6 +1,7 @@
 import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
 import { InputFilter } from "../tools/input-filter.js";
+import { Prisma } from "../../generated/prisma/client.js";
 
 export class UserController {
 
@@ -70,7 +71,7 @@ export class UserController {
 
     update: RequestHandler = async (req: Request, res: Response) => {
         const id: string  = req.params.id || "";
-        const body: object = req.body;
+        const body: Prisma.usersCreateInput = req.body;
         const filteredInput: object | boolean = InputFilter(body);
 
         if (!id) {
@@ -90,7 +91,7 @@ export class UserController {
                 return res.status(404).json({message: "User not found, please create an account or check the data provided."});
             }
 
-            await this.service.update(id, filteredInput);
+            await this.service.update(id, body);
             return res.status(200).json({message: "User updated successfully."});
 
         } catch (e: unknown) {

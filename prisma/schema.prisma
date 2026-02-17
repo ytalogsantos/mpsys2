@@ -9,28 +9,36 @@ datasource db {
 
 model maintenance_notes {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  priority    String?   @db.VarChar(80)
-  title       String?   @db.VarChar(80)
-  description String?   @db.VarChar(80)
-  profile_id  String?   @db.Uuid
+  priority    String    @db.VarChar(80)
+  title       String    @db.VarChar(80)
+  description String    @db.VarChar(80)
+  profile_id  String    @db.Uuid
   created_at  DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
-  profiles    profiles? @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles    profiles  @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model profiles {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id           String?             @db.Uuid
-  name              String?             @db.VarChar(80)
-  role              String?             @db.VarChar(80)
+  user_id           String              @db.Uuid
+  name              String              @db.VarChar(80)
+  role              Role                @default(OPERATOR)
   maintenance_notes maintenance_notes[]
-  users             users?              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users             users               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id_fk")
 }
 
 model users {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email      String?    @unique(map: "unique_user_email") @db.VarChar(80)
-  password   String?    @db.VarChar(80)
+  email      String     @unique(map: "unique_user_email") @db.VarChar(80)
+  password   String     @db.VarChar(80)
   active     Boolean?   @default(true)
   created_at DateTime?  @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
   profiles   profiles[]
+}
+
+enum Role {
+  ADMIN
+  GATEKEEPER
+  PLANNER
+  PROGRAMMER
+  OPERATOR
 }
