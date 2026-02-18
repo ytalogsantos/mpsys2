@@ -5,7 +5,6 @@ import { Prisma } from "../../generated/prisma/client.js";
 
 export class ProfileController {
     private readonly service: ProfileService;
-
     
     constructor(service: ProfileService) {
         this.service = service;
@@ -31,5 +30,12 @@ export class ProfileController {
             console.log(`Internal error: ${e}`);
             return res.status(500).json({message: "Internal error, please try again later."});
         }
+    }
+
+    get: RequestHandler = async (req: Request, res: Response) => {
+        const body: Prisma.profilesCreateInput = req.body;
+        const data: Prisma.profilesCreateInput = body;
+
+
     }
 }

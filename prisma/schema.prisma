@@ -19,7 +19,7 @@ model maintenance_notes {
 
 model profiles {
   id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id           String              @db.Uuid
+  user_id           String              @unique(map: "unique_user_id") @db.Uuid
   name              String              @db.VarChar(80)
   role              Role                @default(OPERATOR)
   maintenance_notes maintenance_notes[]
@@ -27,12 +27,12 @@ model profiles {
 }
 
 model users {
-  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email      String     @unique(map: "unique_user_email") @db.VarChar(80)
-  password   String     @db.VarChar(80)
-  active     Boolean?   @default(true)
-  created_at DateTime?  @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
-  profiles   profiles[]
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email      String    @unique(map: "unique_user_email") @db.VarChar(80)
+  password   String    @db.VarChar(80)
+  active     Boolean?  @default(true)
+  created_at DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
+  profiles   profiles?
 }
 
 enum Role {

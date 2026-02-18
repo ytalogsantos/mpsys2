@@ -12,7 +12,7 @@ export class UserController {
     }
 
     create: RequestHandler = async (req: Request, res: Response) => {
-        const { email, password } = req.body;
+        const filteredInput = 
 
         if (!email || !password) {
             console.error("Data missing. Please, fill the fields 'email' and 'password'.");
@@ -72,7 +72,7 @@ export class UserController {
     update: RequestHandler = async (req: Request, res: Response) => {
         const id: string  = req.params.id || "";
         const body: Prisma.usersCreateInput = req.body;
-        const filteredInput: object | boolean = InputFilter(body);
+        const filteredInput: object = InputFilter(body);
 
         if (!id) {
             console.error("Identifier missing.");
