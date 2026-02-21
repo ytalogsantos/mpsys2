@@ -1,20 +1,20 @@
 import { Prisma } from "../../generated/prisma/client.js";
 
-function UserInputFilter(obj: Prisma.usersCreateInput): Prisma.usersCreateInput | boolean {
+function UserInputFilter(obj: Prisma.usersCreateInput): Prisma.usersCreateInput {
     const { email, password } = obj;
 
     if (!email || password) {
-        return false;
+        return { email: "", password: ""};
     }
 
     if (!isEmailValid(email)) {
         console.error("Invalid email input.");
-        return false;
+        return { email: "", password };
     }
 
     if (!isPasswordValid(password)) {
         console.error("Password is too weak.");
-        return false;
+        return { email, password: "" };
     }
 
     return { email, password };
@@ -31,3 +31,5 @@ function isPasswordValid(password: string): boolean {
     const re = /^(?=.*[A-Z])(?=.*\d).{8,}$/
     return re.test(password);
 }
+
+export { UserInputFilter };

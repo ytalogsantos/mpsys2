@@ -1,6 +1,7 @@
 import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
 import { InputFilter } from "../tools/input-filter.js";
+import { UserInputFilter } from "../tools/user-input-filter.js";
 import { Prisma } from "../../generated/prisma/client.js";
 
 export class UserController {
@@ -12,11 +13,12 @@ export class UserController {
     }
 
     create: RequestHandler = async (req: Request, res: Response) => {
-        const filteredInput = 
+        const filteredInput: Prisma.usersCreateInput = UserInputFilter(req.body);
+        const { email, password } = filteredInput;
 
         if (!email || !password) {
-            console.error("Data missing. Please, fill the fields 'email' and 'password'.");
-            return res.status(400).json({message: "Data missing. Please, fill the fields 'email' and 'password'."});
+            console.error("Data missing. Please, fill the fields 'email' and 'password' properly.");
+            return res.status(400).json({message: "Data missing. Please, fill the fields 'email' and 'password' properly."});
         }
 
         try {
