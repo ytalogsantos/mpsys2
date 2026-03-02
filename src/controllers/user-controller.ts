@@ -23,6 +23,8 @@ export class UserController {
 
         try {
             const newUser = await this.service.create({ email, password });
+            const userId2 = newUser["id" as keyof Object];
+
             if (!newUser) {
                 console.error("Something went wrong.");
                 return res.status(400).json({message: "Something went wrong. Please, try again later."});

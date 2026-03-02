@@ -1,6 +1,4 @@
 import { Prisma } from "../../generated/prisma/client.js";
-import { UserService } from "../services/user-service.js";
-import { ProfileService } from "../services/profile-service.js";
 import type { RequestHandler, Request, Response } from "express";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { ProfileInputFilter } from "../tools/profile-input-filter.js";

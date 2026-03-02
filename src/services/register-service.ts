@@ -16,7 +16,8 @@ export class RegisterService {
     public async create(userInput: Prisma.usersCreateInput, profileInput: Prisma.profilesCreateInput): Promise<typeof prisma.profiles> {
         try {
             const user: typeof prisma.users = await this.userService.create(userInput);
-            const userId: string = String(user.fields.id);
+            const userId: string = String(user["id" as keyof Object]);
+            console.log("##### USER ID ", userId);
             
             if (!user) {
                 console.error("User couldn't be created.");
@@ -26,7 +27,7 @@ export class RegisterService {
                 users: {
                     connect: { id: userId }
                 },
-                name: profileInput.name || "unknown",
+                name: profileInput.name || "Unknown User",
                 role: profileInput.role || "OPERATOR",
 
             });

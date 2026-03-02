@@ -5,7 +5,7 @@ function ProfileInputFilter (obj: Prisma.profilesCreateInput): Prisma.profilesCr
     const filteredInput: Prisma.profilesCreateInput = {name: "", role: "OPERATOR", users: {}};
 
     if (!name) {
-        filteredInput.name = "unknown";
+        filteredInput.name = "Unknown User";
     }
 
     if (!role) {

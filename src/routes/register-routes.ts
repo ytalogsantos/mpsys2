@@ -10,6 +10,6 @@ const registerService = new RegisterService(userService, profileService);
 const registerController = new RegisterController(registerService);
 const register = express.Router();
 
-register.post("register/", registerController.create);
+register.post("/register", registerController.create);
 
 export { register };
