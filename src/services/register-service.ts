@@ -15,19 +15,15 @@ export class RegisterService {
 
     public async create(userInput: Prisma.usersCreateInput, profileInput: Prisma.profilesCreateInput): Promise<typeof prisma.profiles> {
         try {
+
             const user: typeof prisma.users = await this.userService.create(userInput);
             const userId: string = String(user["id" as keyof Object]);
-            console.log("##### USER ID ", userId);
-            
-            if (!user) {
-                console.error("User couldn't be created.");
-            }
 
             const profile: typeof prisma.profiles = await this.profileService.create({
                 users: {
                     connect: { id: userId }
                 },
-                name: profileInput.name || "Unknown User",
+                name: profileInput.name || "Unknown",
                 role: profileInput.role || "OPERATOR",
 
             });

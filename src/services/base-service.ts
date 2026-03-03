@@ -5,13 +5,6 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
 
     public async create(input: ModelCreateInput): Promise<ModelDelegate> {
         try {
-            const existingEntity = await this.get(input);
-
-            if (existingEntity) {
-                console.error("Entity already exists.");
-                // return false;
-            }
-
             return await this.model.create({data: input});
         } catch (e: unknown) {
             console.error(e);
