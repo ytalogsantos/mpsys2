@@ -1,16 +1,16 @@
 import { Prisma } from "../../generated/prisma/client.js";
 
-function UserInputFilter(obj: Prisma.usersCreateInput): Prisma.usersCreateInput {
+function UserInputFilter(obj: Prisma.usersCreateInput): Prisma.usersCreateInput | boolean {
     const { email, password } = obj;
 
-    if (!email && !password) {
+    if (!email || !password) {
         console.error("Missing user input.");
-        return { email: "", password: ""};
+        return false;
     }
 
     if (!isEmailValid(email) || !isPasswordValid(password)) {
         console.error("Invalid user input.");
-        return { email: "", password: "" };
+        return false;
     }
 
     return { email, password };

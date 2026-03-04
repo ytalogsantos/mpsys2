@@ -1,4 +1,5 @@
 import type { ModelConstraints } from "./interfaces/model-constraints.js";
+import { Prisma } from "../../generated/prisma/client.js";
 
 export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelCreateInput> {
     constructor(private readonly model: ModelDelegate) { }
@@ -6,54 +7,41 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
     public async create(input: ModelCreateInput): Promise<ModelDelegate> {
         try {
             return await this.model.create({data: input});
-        } catch (e: unknown) {
-            console.error(e);
-            throw new Error("Something went wrong :/");
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === "P2002") {
+                    throw new Error("Entity already exists.");
+                }
+            }
+            throw new Error(`"create" operation couldn't be completed due to: ${e}`);
         }
     }
 
-    public async get(identifier: ModelCreateInput | string | object): Promise<ModelDelegate | null> {
-        if (!identifier) {
-            console.error("Invalid identifier.");
-            return null;
-        }
-
+    public async get(entityData: ModelCreateInput): Promise<ModelDelegate | null> {
         try {
             const entity = await this.model.findUnique({
-                where: identifier
+                where: entityData
             });
 
             if (!entity) {
-                console.error("Entity not found.");
+                console.log("Entity not found.");
                 return null;
             }
             return entity;
-        } catch (e: unknown) {
-            throw new Error(`Internal error: ${e}`);
+        } catch (e) {            
+            throw new Error(`"get" operation couldn't be completed due to: ${e}`);
         }
     }
 
-    public async getAll(): Promise<ModelDelegate[] | null> {
+    public async getAll(): Promise<ModelDelegate[]> {
         try {
-            const entities = await this.model.findMany();
-
-            if (!entities) {
-                console.error("Entity not found.");
-                return null;
-            }
-
-            return entities;
+            return await this.model.findMany();
         } catch (e: unknown) {
-            throw new Error(`Internal error: ${e}`);
+            throw new Error(`"getAll" operation couldn't be completed due to: ${e}`);
         }
     }
 
-    public async update(identifier: string, data: ModelCreateInput): Promise<void | null> {
-        if (!identifier || !data) {
-            console.error("Information missing. Please, inform the identifier and data to proceed.");
-            return null;
-        }
-
+    public async update(identifier: string, data: ModelCreateInput): Promise<void> {
         try {
             await this.model.update({
                 where: {
@@ -61,32 +49,20 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
                 },
                 data: data
             });
-            console.log("Data updated successfully.");
         } catch (e: unknown) {
-            throw new Error(`Internal error: ${e}`);
+            throw new Error(`"update" operation couldn't be completed due to: ${e}`);
         }
     }
 
-    public async delete(identifier: ModelCreateInput | string): Promise<void | null> {
-        if (!identifier) {
-            console.error("Identifier missing.");
-            return null;
-        }
-
+    public async delete(identifier: string): Promise<void> {
         try {
-            const existingEntity = await this.get({id: identifier});
-            if (!existingEntity) {
-                console.error("Entity not found.");
-                return null;
-            }
             await this.model.delete({
                 where: {
                     id: identifier
                 }
             });
-            console.log("Entity deleted successfully.");
         } catch (e: unknown) {
-            throw new Error(`Internal error: ${e}`);
+            throw new Error(`"delete" operation couldn't be completed due to: ${e}`);
         }
     }
 }

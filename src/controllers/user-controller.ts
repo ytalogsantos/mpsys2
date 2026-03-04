@@ -1,39 +1,26 @@
 import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
-import { InputFilter } from "../tools/input-filter.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { Prisma } from "../../generated/prisma/client.js";
 
 export class UserController {
-
-    private readonly service: UserService;
-
-    constructor(service: UserService) {
-        this.service = service;
-    }
+    constructor(private readonly service: UserService) { }
 
     create: RequestHandler = async (req: Request, res: Response) => {
-        const filteredInput: Prisma.usersCreateInput = UserInputFilter(req.body);
-        const { email, password } = filteredInput;
+        const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter(req.body);
 
-        if (!email || !password) {
-            console.error("Data missing. Please, fill the fields 'email' and 'password' properly.");
-            return res.status(400).json({message: "Data missing. Please, fill the fields 'email' and 'password' properly."});
+        if (!validUserInput) {
+            return res.status(400).json({message: `Data missing. Please, fill the fields "email" and "password" properly.`});
         }
+
+        const email: string  = String(validUserInput["email" as keyof Object]);
+        const password: string = String(validUserInput["password" as keyof Object]);
 
         try {
             const newUser = await this.service.create({ email, password });
-            const userId2 = newUser["id" as keyof Object];
-
-            if (!newUser) {
-                console.error("Something went wrong.");
-                return res.status(400).json({message: "Something went wrong. Please, try again later."});
-            }
-            console.log("User created successfully.");
-            return res.status(201).json({message: "User created successfully.", data: newUser});
+            return res.status(201).json({message: "User created successfully.", newUser});
         } catch (e: unknown) {
-            console.error(`Internal server error: ${e}`);
-            return res.status(500).json({message: `Internal error, please try again later.`});
+            return res.status(500).json({message: `${e}`});
         }
     }
 

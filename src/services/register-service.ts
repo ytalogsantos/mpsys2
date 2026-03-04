@@ -15,11 +15,16 @@ export class RegisterService {
 
     public async create(userInput: Prisma.usersCreateInput, profileInput: Prisma.profilesCreateInput): Promise<typeof prisma.profiles> {
         try {
+            const { email, password } = userInput;
 
+            if (!email || !password) {
+                throw new Error(`Missing user information. "create" operation couldn't be completed.`);
+            }
+ 
             const user: typeof prisma.users = await this.userService.create(userInput);
             const userId: string = String(user["id" as keyof Object]);
 
-            const profile: typeof prisma.profiles = await this.profileService.create({
+            const profile: typeof prisma.profiles | null = await this.profileService.create({
                 users: {
                     connect: { id: userId }
                 },
@@ -31,7 +36,7 @@ export class RegisterService {
             return profile;
 
         } catch (e: unknown) {
-            throw new Error(`Internal error: ${e}`);
+            throw new Error(`"Account couldn't be created due to: ${e}`);
         }
     }
 
