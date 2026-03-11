@@ -10,7 +10,7 @@ export class UserController {
         const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter(req.body);
 
         if (!validUserInput) {
-            return res.status(400).json({message: `Data missing. Please, fill the fields 'email' and 'password' properly.`});
+            return res.status(400).json({message: `Invalid input. Please, fill the fields 'email' and 'password' properly.`});
         }
 
         const email: string  = String(validUserInput["email" as keyof Object]);
@@ -34,6 +34,7 @@ export class UserController {
             }
             return res.status(200).json({user});
         } catch (e: unknown) {
+            console.error(`Internal error: ${e}`);
             return res.status(500).json({message: `${e}`});
         }
     }
@@ -42,7 +43,6 @@ export class UserController {
         try {
             const users = await this.service.getAll();
             if (!users) {
-                console.log("No users were found.");
                 return res.status(404).json({message: "No users were found."});
             }
             return res.status(200).json({users})
@@ -54,24 +54,16 @@ export class UserController {
     }
 
     update: RequestHandler = async (req: Request, res: Response) => {
-        const id: string  = req.params.id || "";
+        const id: string  = String(req.params.id);
         const body: Prisma.usersCreateInput = req.body;
-        const filteredInput: object = InputFilter(body);
 
-        if (!id) {
-            console.error("Identifier missing.");
-            return res.status(400).json({message: "Identifier missing."});
-        }
-
-        if (Object.keys(filteredInput).length == 0) {
-            console.error("Data for update must be provided.");
+        if (Object.keys(body).length == 0) {
             return res.status(400).json({message: "Please, provide the data for updating."});
         }
 
         try {
-            const user = await this.service.get({id});
+            const user = await this.service.findById(id);
             if (!user) {
-                console.error("User not found.");
                 return res.status(404).json({message: "User not found, please create an account or check the data provided."});
             }
 
@@ -85,12 +77,11 @@ export class UserController {
     }
 
     delete: RequestHandler = async (req: Request, res: Response) => {
-        const id = req.params.id || "";
+        const id: string = String(req.params.id);
         
         try {
-            const user = await this.service.get({id});
+            const user = await this.service.findById(id);
             if (!user) {
-                console.error("User not found.");
                 return res.status(404).json({message: "User not found."});
             }
 

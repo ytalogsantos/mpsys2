@@ -1,7 +1,7 @@
 import { UserService } from "../services/user-service.js";
 import { ProfileService } from "../services/profile-service.js";
 import { prisma } from "../config/db.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import { Prisma, Role } from "../../generated/prisma/client.js";
 
 export class RegisterService {
     
@@ -14,13 +14,7 @@ export class RegisterService {
     };
 
     public async create(userInput: Prisma.usersCreateInput, profileInput: Prisma.profilesCreateInput): Promise<typeof prisma.profiles> {
-        try {
-            const { email, password } = userInput;
-
-            if (!email || !password) {
-                throw new Error(`Missing user information. "create" operation couldn't be completed.`);
-            }
- 
+        try { 
             const user: typeof prisma.users = await this.userService.create(userInput);
             const userId: string = String(user["id" as keyof Object]);
 
