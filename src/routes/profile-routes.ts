@@ -6,6 +6,6 @@ const service = new ProfileService();
 const controller = new ProfileController(service);
 const profiles = express.Router();
 
-profiles.post("/profiles", controller.create);
+profiles.get("/profiles/:id", controller.get);
 
 export { profiles };

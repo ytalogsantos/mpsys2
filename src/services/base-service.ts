@@ -17,10 +17,12 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
         }
     }
 
-    public async get(entityData: ModelCreateInput): Promise<ModelDelegate | null> {
+    public async findById(entityId: string): Promise<ModelDelegate | null> {
         try {
             const entity = await this.model.findUnique({
-                where: entityData
+                where: {
+                    id: entityId,
+                }
             });
 
             if (!entity) {

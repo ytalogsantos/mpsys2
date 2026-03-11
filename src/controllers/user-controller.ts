@@ -10,7 +10,7 @@ export class UserController {
         const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter(req.body);
 
         if (!validUserInput) {
-            return res.status(400).json({message: `Data missing. Please, fill the fields "email" and "password" properly.`});
+            return res.status(400).json({message: `Data missing. Please, fill the fields 'email' and 'password' properly.`});
         }
 
         const email: string  = String(validUserInput["email" as keyof Object]);
@@ -25,23 +25,16 @@ export class UserController {
     }
 
     get: RequestHandler = async (req: Request, res: Response) => {
-        const id = req.params.id;
-
-        if (!id) {
-            console.error("Identifier missing.");
-            return res.status(400).json({message: "Identifier missing"});
-        }
+        const id: string = String(req.params.id);
 
         try {
-            const user = await this.service.get({id});
+            const user = await this.service.findById(id);
             if (!user) {
-                console.log("No user was found.");
                 return res.status(404).json({message: "User not found."});    
             }
             return res.status(200).json({user});
         } catch (e: unknown) {
-            console.error(`Internal error: ${e}`);
-            return res.status(500).json({message: `Internal error.`});
+            return res.status(500).json({message: `${e}`});
         }
     }
 
