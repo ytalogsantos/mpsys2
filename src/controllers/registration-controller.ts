@@ -1,15 +1,15 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import type { RequestHandler, Request, Response } from "express";
-import { RegisterService } from "../services/register-service.js";
+import { RegistrationService } from "../services/registration-service.js";
 import { prisma } from "../config/db.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
 
 export class RegisterController {
-    private readonly registerService: RegisterService;
+    private readonly registrationService: RegistrationService;
 
-    constructor(registerService: RegisterService) {
-        this.registerService = registerService;
+    constructor(registrationService: RegistrationService) {
+        this.registrationService = registrationService;
     };
 
     create: RequestHandler = async (req: Request, res: Response) => {
@@ -35,13 +35,13 @@ export class RegisterController {
         }
 
         try {
-            const profile: typeof prisma.profiles = await this.registerService.create({ email, password}, { name, role, users: {} });
+            const profile: Prisma.profilesModel = await this.registrationService.create({ email, password}, { name, role, users: {} });
             return res.status(201).json({message: "Account created successfully.", profile});
 
         } catch (e) {
             if (e instanceof RegistrationError) {
                 console.log(e.code);
-                return res.status(400).json({message: `${e.message}`});
+                return res.status(e.status).json({message: `${e.message}`});
             }
             return res.status(500).json({message: `${e}`});
         }

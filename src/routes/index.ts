@@ -1,6 +1,6 @@
 import { users } from "./user-routes.js";
 import { profiles } from "./profile-routes.js";
-import { register } from "./register-routes.js";
+import { register } from "./registration-routes.js";
 import type { Express, Request, Response } from "express";
 
 const routes = (app: Express) => {

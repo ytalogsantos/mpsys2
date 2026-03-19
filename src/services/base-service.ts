@@ -1,21 +1,7 @@
 import type { ModelConstraints } from "./interfaces/model-constraints.js";
-import { Prisma } from "../../generated/prisma/client.js";
 
 export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelCreateInput> {
     constructor(private readonly model: ModelDelegate) { }
-
-    public async create(input: ModelCreateInput): Promise<ModelDelegate> {
-        try {
-            return await this.model.create({data: input});
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2002") {
-                    throw new Error("Entity already exists.");
-                }
-            }
-            throw new Error(`"create" operation couldn't be completed due to ${e}`);
-        }
-    }
 
     public async findById(entityId: string): Promise<ModelDelegate | null> {
         try {
