@@ -1,7 +1,8 @@
 import { UserService } from "../services/user-service.js";
 import { ProfileService } from "../services/profile-service.js";
 import { prisma } from "../config/db.js";
-import { Prisma, Role } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client.js";
+import { RegistrationError } from "../tools/errors/registration-error.js";
 
 export class RegisterService {
     
@@ -22,15 +23,15 @@ export class RegisterService {
                 users: {
                     connect: { id: userId }
                 },
-                name: profileInput.name || "Unknown",
+                name: profileInput.name || "Unknown", // the "Unknown" here will not be used anyway"
                 role: profileInput.role || "OPERATOR",
 
             });
 
             return profile;
 
-        } catch (e: unknown) {
-            throw new Error(`"Account couldn't be created due to: ${e}`);
+        } catch (e) {
+            throw new RegistrationError("Registration failed.", "USER-001", 400);
         }
     }
 

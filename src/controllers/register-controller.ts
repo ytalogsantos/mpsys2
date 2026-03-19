@@ -3,6 +3,7 @@ import type { RequestHandler, Request, Response } from "express";
 import { RegisterService } from "../services/register-service.js";
 import { prisma } from "../config/db.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
+import { RegistrationError } from "../tools/errors/registration-error.js";
 
 export class RegisterController {
     private readonly registerService: RegisterService;
@@ -21,7 +22,7 @@ export class RegisterController {
         const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter({ email, password});
 
         if (!validUserInput) {
-            throw new Error(`Invalid user data. "create" operation couldn't be completed.`);
+            return res.status(400).json({ message: "Invalid user input. Account coundn't be creacted." });
         }
 
         if (name.trim().length < 3) {
@@ -37,9 +38,12 @@ export class RegisterController {
             const profile: typeof prisma.profiles = await this.registerService.create({ email, password}, { name, role, users: {} });
             return res.status(201).json({message: "Account created successfully.", profile});
 
-        } catch (e: unknown) {
-            console.error(`${e}`);
-            return res.status(500).json({message: "Internal Error."});
+        } catch (e) {
+            if (e instanceof RegistrationError) {
+                console.log(e.code);
+                return res.status(400).json({message: `${e.message}`});
+            }
+            return res.status(500).json({message: `${e}`});
         }
     }
 }

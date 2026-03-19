@@ -13,7 +13,7 @@ export abstract class BaseService<ModelDelegate extends ModelConstraints, ModelC
                     throw new Error("Entity already exists.");
                 }
             }
-            throw new Error(`"create" operation couldn't be completed due to: ${e}`);
+            throw new Error(`"create" operation couldn't be completed due to ${e}`);
         }
     }
 
