@@ -11,7 +11,7 @@ export class UserService {
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {
-                    throw new AppError("User already exists.", ErrorCode.USER_ALREADY_EXISTS, 400);
+                    throw new AppError("User already exists (by UserService)", ErrorCode.USER_ALREADY_EXISTS, 400);
                 }
             }
             throw new Error(`${e}`);
@@ -39,7 +39,6 @@ export class UserService {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 throw new AppError(e.message, ErrorCode.USER_UNEXPECTED_ERROR, 500);
             }
-            console.log(e);
             return null;
         }
     }
@@ -58,7 +57,10 @@ export class UserService {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 throw new AppError(e.message, ErrorCode.USER_UNEXPECTED_ERROR, 500);
             }
-            console.log(e);
+            if (e instanceof AppError) {
+                throw new AppError(e.message, e.code, e.status);
+            }
+            throw new Error(`${e}`);
         }
     }
 
