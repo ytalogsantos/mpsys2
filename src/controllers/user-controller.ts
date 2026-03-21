@@ -2,7 +2,7 @@ import { UserService } from "../services/user-service.js";
 import type { Request, RequestHandler, Response } from "express";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
-import { ErrorCode } from "../tools/errors/error.codes.js";
+import { ErrorCodes } from "../tools/errors/error.codes.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
@@ -13,7 +13,7 @@ export class UserController {
         try {
             const user = await this.service.getById(id);
             if (!user) {
-                console.log(ErrorCode.USER_NOT_FOUND);
+                console.log(ErrorCodes.USER_NOT_FOUND);
                 return res.status(404).json({message: "User not found."});    
             }
             return res.status(200).json({user});
@@ -21,8 +21,8 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
-            console.log(`${ErrorCode.USER_UNEXPECTED_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCode.USER_UNEXPECTED_ERROR} -- Internal error.`});
+            console.log(`${ErrorCodes.USER_UNEXPECTED_ERROR} -- ${e}`);
+            return res.status(500).json({message: `${ErrorCodes.USER_UNEXPECTED_ERROR} -- Internal error.`});
         }
     }
 
@@ -30,7 +30,7 @@ export class UserController {
         try {
             const users = await this.service.getAll();
             if (!users) {
-                console.log(ErrorCode.USER_NOT_FOUND);
+                console.log(ErrorCodes.USER_NOT_FOUND);
                 return res.status(404).json({message: "No users were found."});
             }
             return res.status(200).json({users})
@@ -39,8 +39,8 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
-            console.log(`${ErrorCode.USER_UNEXPECTED_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCode.USER_UNEXPECTED_ERROR} -- Internal error`});
+            console.log(`${ErrorCodes.USER_UNEXPECTED_ERROR} -- ${e}`);
+            return res.status(500).json({message: `${ErrorCodes.USER_UNEXPECTED_ERROR} -- Internal error`});
         }
     }
 
@@ -60,8 +60,8 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
-            console.log(`${ErrorCode.USER_UNEXPECTED_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCode.USER_UNEXPECTED_ERROR} -- Internal error`});
+            console.log(`${ErrorCodes.USER_UNEXPECTED_ERROR} -- ${e}`);
+            return res.status(500).json({message: `${ErrorCodes.USER_UNEXPECTED_ERROR} -- Internal error`});
         }
     }
 
@@ -81,8 +81,8 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
-            console.log(`${ErrorCode.USER_UNEXPECTED_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCode.USER_UNEXPECTED_ERROR} -- Internal error`});
+            console.log(`${ErrorCodes.USER_UNEXPECTED_ERROR} -- ${e}`);
+            return res.status(500).json({message: `${ErrorCodes.USER_UNEXPECTED_ERROR} -- Internal error`});
         }
     }
 
