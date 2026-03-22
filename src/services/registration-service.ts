@@ -30,12 +30,11 @@ export class RegistrationService {
 
         } catch (e) {
             if (e instanceof AppError) {
-                console.log(e.code);
-                if (String(e.code) === "USER-001") {
+                if (e.code === "USER-001") {
                     throw new RegistrationError(`Registration failed -- ${e.message}`, e.code, e.status);
                 }
             }
-            throw new Error("Something else, idk.");
+            throw new Error(`${e}`);
         }
     }
 

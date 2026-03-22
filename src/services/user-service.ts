@@ -23,10 +23,9 @@ export class UserService {
             return await prisma.users.findMany();
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                throw new AppError(e.message, ErrorCodes.USER_UNEXPECTED_ERROR, 500);
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
-            console.log(e);
-            return null;
+            throw new Error(`${e}`);
         }
     }
 
@@ -37,12 +36,12 @@ export class UserService {
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (String(e.code) === "P2007") {
+                if (e.code === "P2007") {
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
-                throw new AppError(e.message, ErrorCodes.USER_UNEXPECTED_ERROR, 500);
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
-            return null;
+            throw new Error(`${e}`);
         }
     }
 
@@ -52,16 +51,16 @@ export class UserService {
             if (!user) {
                 throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 400);
             }
-            prisma.users.update({
+            await prisma.users.update({
                 where: { id: id }, 
                 data: data
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                throw new AppError(e.message, ErrorCodes.USER_UNEXPECTED_ERROR, 500);
-            }
-            if (e instanceof AppError) {
-                throw new AppError(e.message, e.code, e.status);
+                if (e.code === "P2007") {
+                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
+                }
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
         }
@@ -69,18 +68,21 @@ export class UserService {
 
     public async delete(id: string): Promise<void> {
         try {
-            const user: Promise<Prisma.usersModel | null> = this.getById(id);
+            const user = await this.getById(id);
             if (!user) {
-                throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 400);
+                throw new AppError("User not found.", ErrorCodes.USER_NOT_FOUND, 400);
             }
             await prisma.users.delete({
                 where: { id },
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                throw new AppError(e.message, ErrorCodes.USER_UNEXPECTED_ERROR, 500);
+                if (e.code === "P2007") {
+                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 500);
+                }
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
-            console.log(e);
+            throw new Error(`${e}`);
         }
     }
 }
