@@ -3,6 +3,7 @@ import type { Request, RequestHandler, Response } from "express";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
+import { isEmailValid, isPasswordValid } from "../tools/user-input-filter.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
@@ -48,8 +49,23 @@ export class UserController {
         const id: string = String(req.params.id);
         const body: Prisma.usersCreateInput = req.body;
 
+        const email = body["email"];
+        const password = body["password"];
+        
         if (Object.keys(body).length == 0) {
             return res.status(400).json({message: "Please, provide the data for updating."});
+        }
+
+        if (email) {
+            if (!isEmailValid(email)) {
+                return res.status(400).json({message: "Invalid email format. Please, try again."});
+            }
+        }
+
+        if (password) {
+            if (!isPasswordValid(password)) {
+                return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters."});
+            }
         }
 
         try { 

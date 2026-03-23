@@ -26,4 +26,4 @@ function isPasswordValid(password: string): boolean {
     return re.test(password);
 }
 
-export { UserInputFilter };
+export { UserInputFilter, isEmailValid, isPasswordValid };
