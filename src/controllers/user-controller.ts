@@ -77,7 +77,7 @@ export class UserController {
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
             console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error`});
+            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error.`});
         }
     }
 

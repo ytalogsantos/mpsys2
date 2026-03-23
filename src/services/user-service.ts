@@ -73,7 +73,7 @@ export class UserService {
                 throw new AppError("User not found.", ErrorCodes.USER_NOT_FOUND, 400);
             }
             await prisma.users.delete({
-                where: { id },
+                where: { id: id },
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
