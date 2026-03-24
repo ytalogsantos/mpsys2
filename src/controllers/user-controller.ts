@@ -15,11 +15,14 @@ export class UserController {
             const user = await this.service.getById(id);
             if (!user) {
                 console.log(ErrorCodes.USER_NOT_FOUND);
-                return res.status(404).json({message: "User not found."});    
+                return res.status(404).json({message: "User not found.", code: ErrorCodes.USER_NOT_FOUND});    
             }
             return res.status(200).json({user});
         } catch (e) {
             if (e instanceof AppError) {
+                if (e.code === ErrorCodes.INVALID_USER_ID) {
+                    return res.status(400).json({message: `The Id provided is not valid.`, code: e.code});
+                }
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
             console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
@@ -32,7 +35,7 @@ export class UserController {
             const users = await this.service.getAll();
             if (!users) {
                 console.log(ErrorCodes.USER_NOT_FOUND);
-                return res.status(404).json({message: "No users were found."});
+                return res.status(404).json({message: "No users were found.", code: ErrorCodes.USER_NOT_FOUND});
             }
             return res.status(200).json({users})
 
@@ -53,18 +56,19 @@ export class UserController {
         const password = body["password"];
         
         if (Object.keys(body).length == 0) {
-            return res.status(400).json({message: "Please, provide the data for updating."});
+            return res.status(400).json({message: "Please, provide the data for updating.", code: ErrorCodes.INVALID_USER_DATA});
         }
 
         if (email) {
             if (!isEmailValid(email)) {
-                return res.status(400).json({message: "Invalid email format. Please, try again."});
+                console.error(ErrorCodes.INVALID_USER_EMAIL);
+                return res.status(400).json({message: "Invalid email format. Please, try again.", code: ErrorCodes.INVALID_USER_EMAIL});
             }
         }
 
         if (password) {
             if (!isPasswordValid(password)) {
-                return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters."});
+                return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters.", code: ErrorCodes.INVALID_USER_PASSWORD});
             }
         }
 
@@ -74,6 +78,9 @@ export class UserController {
 
         } catch (e) {
             if (e instanceof AppError) {
+                if (e.code === ErrorCodes.INVALID_USER_ID) {
+                    return res.status(400).json({message: "The Id provided is invalid. Please, try again.", code: e.code});
+                }
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
             console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
@@ -95,9 +102,14 @@ export class UserController {
 
         } catch (e) {
             if (e instanceof AppError) {
+                if (e.code === ErrorCodes.INVALID_USER_ID) {
+                    return res.status(400).json({message: "The Id provided is invalid. Please, try again.", code: e.code});
+                }
+                if (e.code === ErrorCodes.USER_NOT_FOUND) {
+                    return res.status(404).json({message: "User not found. Please, try again.", code: e.code});
+                }
                 return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
             }
-            console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
             return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error`});
         }
     }

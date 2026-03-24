@@ -13,6 +13,8 @@ export class UserService {
                 if (e.code === "P2002") {
                     throw new AppError("User already exists.", ErrorCodes.USER_ALREADY_EXISTS, 400);
                 }
+                console.error(e);
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
         }
@@ -23,6 +25,7 @@ export class UserService {
             return await prisma.users.findMany();
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                console.error(e);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
@@ -39,6 +42,7 @@ export class UserService {
                 if (e.code === "P2007") {
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
+                console.error(e);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
@@ -56,10 +60,11 @@ export class UserService {
                 data: data
             });
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2007") {
+            if (e instanceof AppError) {
+                if (e.code === ErrorCodes.INVALID_USER_ID) {
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
+                console.error(e);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
@@ -76,10 +81,14 @@ export class UserService {
                 where: { id: id },
             });
         } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2007") {
+            if (e instanceof AppError) {
+                if (e.code === ErrorCodes.INVALID_USER_ID) {
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 500);
                 }
+                if (e.code === ErrorCodes.USER_NOT_FOUND) {
+                    throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 404);
+                }
+                console.error(e);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);

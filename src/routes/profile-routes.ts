@@ -6,6 +6,8 @@ const service = new ProfileService();
 const controller = new ProfileController(service);
 const profiles = express.Router();
 
-profiles.get("/profiles/:id", controller.get);
-
+profiles.get("/profiles", controller.getAll);
+profiles.get("/profiles/:id", controller.getById);
+profiles.put("/profiles/:id", controller.update);
+profiles.delete("/profiles/:id", controller.delete);
 export { profiles };
