@@ -21,9 +21,8 @@ export class RegistrationService {
                 users: {
                     connect: { id: user.id }
                 },
-                name: profileInput.name || "Unknown",
-                role: profileInput.role || "OPERATOR",
-
+                name: profileInput.name || "",
+                role: profileInput.role || "PLANNER",
             });
 
             return profile;

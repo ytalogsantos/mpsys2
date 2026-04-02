@@ -2,12 +2,19 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
+import bcrypt from "bcrypt";
 
 export class UserService {
 
     public async create(input: Prisma.usersCreateInput): Promise<Prisma.usersModel> {
         try {
-            return await prisma.users.create({ data: input }); 
+            const hashedPassword = await bcrypt.hash(input.password, 10);
+            return await prisma.users.create({
+                data: {
+                    email: input.email,
+                    password: hashedPassword
+                }
+            }); 
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {

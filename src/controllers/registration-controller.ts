@@ -1,7 +1,6 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import type { RequestHandler, Request, Response } from "express";
 import { RegistrationService } from "../services/registration-service.js";
-import { prisma } from "../config/db.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
 

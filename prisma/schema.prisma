@@ -32,7 +32,7 @@ model users {
   password   String    @db.VarChar(80)
   active     Boolean?  @default(true)
   created_at DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
-  profiles   profiles?
+  profiles   profiles? @relation(onDelete: Cascade)
 }
 
 enum Role {
