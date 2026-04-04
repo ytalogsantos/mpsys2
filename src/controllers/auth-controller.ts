@@ -1,17 +1,17 @@
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import type { RequestHandler, Request, Response } from "express";
-import { RegistrationService } from "../services/registration-service.js";
+import { AuthService } from "../services/auth-service.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
 
 export class RegisterController {
-    private readonly registrationService: RegistrationService;
+    private readonly authService: AuthService;
 
-    constructor(registrationService: RegistrationService) {
-        this.registrationService = registrationService;
+    constructor(authService: AuthService) {
+        this.authService = authService;
     };
 
-    create: RequestHandler = async (req: Request, res: Response) => {
+    register: RequestHandler = async (req: Request, res: Response) => {
 
         const email: string = req.body["email" as keyof Object];
         const password: string = req.body["password" as keyof Object];
@@ -24,8 +24,8 @@ export class RegisterController {
             return res.status(400).json({ message: "Invalid user input. Account coundn't be creacted." });
         }
 
-        if (name.trim().length < 3) {
-            return res.status(400).json({ message: "Invalid name." });
+        if (!name || name.trim().length < 3) {
+            return res.status(400).json({ message: "Name field is invalid or missing." });
         }
 
         const roles: string[] = Object.keys(Role);
@@ -34,7 +34,7 @@ export class RegisterController {
         }
 
         try {
-            const profile: Prisma.profilesModel = await this.registrationService.create({ email, password}, { name, role, users: {} });
+            const profile: Prisma.profilesModel = await this.authService.register({ email, password}, { name, role, users: {} });
             return res.status(201).json({message: "Account created successfully.", profile});
 
         } catch (e) {

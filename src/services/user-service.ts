@@ -2,18 +2,13 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import bcrypt from "bcrypt";
 
 export class UserService {
 
     public async create(input: Prisma.usersCreateInput): Promise<Prisma.usersModel> {
         try {
-            const hashedPassword = await bcrypt.hash(input.password, 10);
             return await prisma.users.create({
-                data: {
-                    email: input.email,
-                    password: hashedPassword
-                }
+                data: input
             }); 
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -50,6 +45,19 @@ export class UserService {
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
                 console.error(e);
+                throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
+            }
+            throw new Error(`${e}`);
+        }
+    }
+
+    public async getByEmail(email: string): Promise<Prisma.usersModel | null> {
+        try {
+            return await prisma.users.findUnique({
+                where: { email }
+            });
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);

@@ -68,7 +68,7 @@ export class UserController {
 
         if (password) {
             if (!isPasswordValid(password)) {
-                return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters.", code: ErrorCodes.INVALID_USER_PASSWORD});
+                return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters.", code: ErrorCodes.INVALID_USER_PASSWORD_FORMAT});
             }
         }
 
