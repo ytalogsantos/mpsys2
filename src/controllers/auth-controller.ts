@@ -4,7 +4,7 @@ import { AuthService } from "../services/auth-service.js";
 import { UserInputFilter } from "../tools/user-input-filter.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
 
-export class RegisterController {
+export class AuthController {
     private readonly authService: AuthService;
 
     constructor(authService: AuthService) {
