@@ -14,7 +14,7 @@ model maintenance_notes {
   description String    @db.VarChar(80)
   profile_id  String    @db.Uuid
   created_at  DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
-  profiles    profiles  @relation(fields: [profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles    profiles  @relation(fields: [profile_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model profiles {
@@ -23,7 +23,7 @@ model profiles {
   name              String              @db.VarChar(80)
   role              Role                @default(OPERATOR)
   maintenance_notes maintenance_notes[]
-  users             users               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "user_id_fk")
+  users             users               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id_fk")
 }
 
 model users {
@@ -32,7 +32,7 @@ model users {
   password   String    @db.VarChar(80)
   active     Boolean?  @default(true)
   created_at DateTime? @default(dbgenerated("LOCALTIMESTAMP")) @db.Timestamp(6)
-  profiles   profiles? @relation(onDelete: Cascade)
+  profiles   profiles?
 }
 
 enum Role {
