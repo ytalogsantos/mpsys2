@@ -58,12 +58,16 @@ export class AuthService {
                 throw new AppError("Incorrect password.", ErrorCodes.INCORRET_PASSWORD, 401);
             }
 
-            const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "10m"});
-            return { token, user };
+            const profile = await this.profileService.getById(user.id);
+            const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "1m"});
+            return { token, profile};
 
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.code === ErrorCodes.INCORRET_PASSWORD) {
+                    throw new AuthenticationError(e.message, e.code, e.status);
+                }
+                if (e.code === ErrorCodes.USER_NOT_FOUND) {
                     throw new AuthenticationError(e.message, e.code, e.status);
                 }
                 throw new AppError(e.message, e.code, e.status);

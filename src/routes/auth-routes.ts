@@ -11,7 +11,7 @@ const authController = new AuthController(registerService);
 const auth = express.Router();
 
 auth.post("/auth/register", authController.register);
-// authRoutes.post("/auth/login", authController.login);
+auth.post("/auth/login", authController.login);
 
 
 export { auth };

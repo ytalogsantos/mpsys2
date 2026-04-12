@@ -1,8 +1,11 @@
-import { Prisma, Role } from "../../generated/prisma/client.js";
-import type { RequestHandler, Request, Response } from "express";
-import { AuthService } from "../services/auth-service.js";
-import { UserInputFilter } from "../tools/user-input-filter.js";
+import { AuthenticationError } from "../tools/errors/authentication-error.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
+import type { RequestHandler, Request, Response } from "express";
+import { Prisma, Role } from "../../generated/prisma/client.js";
+import { UserInputFilter } from "../tools/user-input-filter.js";
+import { AuthService } from "../services/auth-service.js";
+import "dotenv/config";
+import { ErrorCodes } from "../tools/errors/error.codes.js";
 
 export class AuthController {
     private readonly authService: AuthService;
@@ -44,5 +47,26 @@ export class AuthController {
             }
             return res.status(500).json({message: `${e}`});
         }
+    }
+
+    login: RequestHandler = async (req: Request, res: Response) => {
+        const userCredentials: Prisma.usersModel = req.body;
+
+        try {
+            const payload = await this.authService.login(userCredentials);
+            const profile: Prisma.profilesModel = payload["profile" as keyof object];
+            const token: string = payload["token" as keyof object];
+
+            return res.status(200).json({message: "Login successful.", token, profile: { id: profile.id, name: profile.name, role: profile.role }});
+        } catch (e) {
+            if (e instanceof AuthenticationError) {
+                if (e.code === ErrorCodes.INCORRET_PASSWORD || ErrorCodes.USER_NOT_FOUND) {
+                    return res.status(e.status).json({message: "Email or password incorrect.", code: e.code});
+                }
+                return res.status(e.status).json({message: `${e.message}`});
+            }
+            return res.status(500).json({message: `${e}`});
+        }
+
     }
 }

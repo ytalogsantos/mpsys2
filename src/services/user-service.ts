@@ -54,7 +54,7 @@ export class UserService {
     public async getByEmail(email: string): Promise<Prisma.usersModel | null> {
         try {
             return await prisma.users.findUnique({
-                where: { email }
+                where: { email },
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
