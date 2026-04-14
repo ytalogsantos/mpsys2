@@ -34,13 +34,31 @@ export class ProfileService {
     public async getById(id: string): Promise<Prisma.profilesModel | null> {
         try {
             const profile = await prisma.profiles.findUnique({
-                where: {id: id}
+                where: {id: id},
+                include: { users: true}
             });
             return profile;
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
                     throw new AppError("Invalid profile Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
+                }
+                console.error(e);
+                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
+            }
+            throw new Error(`${e}`);
+        }
+    }
+
+    public async getByUserId(userId: string): Promise<Prisma.profilesModel | null> {
+        try {
+            return await prisma.profiles.findUnique({
+                where: { user_id: userId },
+            });
+        } catch (e) {
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === "P2007") {
+                    throw new AppError("Invalid user Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
                 console.error(e);
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);

@@ -53,9 +53,9 @@ export class AuthController {
         const userCredentials: Prisma.usersModel = req.body;
 
         try {
-            const payload = await this.authService.login(userCredentials);
-            const profile: Prisma.profilesModel = payload["profile" as keyof object];
-            const token: string = payload["token" as keyof object];
+            const payload: Object = await this.authService.login(userCredentials);
+            const profile: Prisma.profilesModel = payload["profile" as keyof object]; // TODO: refactor
+            const token: string = payload["token" as keyof object]; // TODO: refactor as well
 
             return res.status(200).json({message: "Login successful.", token, profile: { id: profile.id, name: profile.name, role: profile.role }});
         } catch (e) {

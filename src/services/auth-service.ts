@@ -58,7 +58,7 @@ export class AuthService {
                 throw new AppError("Incorrect password.", ErrorCodes.INCORRET_PASSWORD, 401);
             }
 
-            const profile = await this.profileService.getById(user.id);
+            const profile = await this.profileService.getByUserId(user.id);
             const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "1m"});
             return { token, profile};
 
