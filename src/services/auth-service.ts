@@ -3,7 +3,7 @@ import { RegistrationError } from "../tools/errors/registration-error.js";
 import { ProfileService } from "../services/profile-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { UserService } from "../services/user-service.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import { Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -28,19 +28,23 @@ export class AuthService {
                 users: {
                     connect: { id: user.id }
                 },
-                name: profileInput.name || "",
-                role: profileInput.role || "PLANNER",
+                name: profileInput.name,
+                role: profileInput.role || Role.PLANNER,
             });
 
             return profile;
 
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.code === "USER-001") {
-                    throw new RegistrationError(`Registration failed -- ${e.message}`, e.code, e.status);
+                if (e.code === ErrorCodes.USER_ALREADY_EXISTS || e.code === ErrorCodes.PROFILE_ALREADY_EXISTS) {
+                    console.error(e.message, e.stack);
+                    throw new RegistrationError("Account already exists.", e.code, e.status);
                 }
+                console.error(e.message, e.stack);
+                throw new AppError(e.message, e.code, e.status);
             }
-            throw new Error(`${e}`);
+            console.error(e);
+            throw new Error("Error at AuthService's register method.");
         }
     }
 
@@ -50,12 +54,12 @@ export class AuthService {
             const { email, password } = userInput;
             const user: Prisma.usersModel | null = await this.userService.getByEmail(email);
             if (!user) {
-                throw new AppError("User not found.", ErrorCodes.USER_NOT_FOUND, 404);
+                throw new AuthenticationError("User not found.", ErrorCodes.USER_NOT_FOUND, 404);
             }
 
             const isPasswordCorrect = await bcrypt.compare(password, user.password);
             if (!isPasswordCorrect) {
-                throw new AppError("Incorrect password.", ErrorCodes.INCORRET_PASSWORD, 401);
+                throw new AuthenticationError("Incorrect password.", ErrorCodes.INCORRET_PASSWORD, 401);
             }
 
             const profile = await this.profileService.getByUserId(user.id);
@@ -63,17 +67,29 @@ export class AuthService {
             return { token, profile};
 
         } catch (e) {
-            if (e instanceof AppError) {
+            if (e instanceof AuthenticationError) {
                 if (e.code === ErrorCodes.INCORRET_PASSWORD) {
                     throw new AuthenticationError(e.message, e.code, e.status);
                 }
                 if (e.code === ErrorCodes.USER_NOT_FOUND) {
                     throw new AuthenticationError(e.message, e.code, e.status);
                 }
+            }
+            if (e instanceof AppError) {
+                if (e.code == ErrorCodes.INVALID_USER_ID) {
+                    console.error(e.message, e.stack);
+                    throw new AuthenticationError(e.message, e.code, e.status);
+                }
+                if (e.code == ErrorCodes.PROFILE_INTERNAL_ERROR) {
+                    console.error(e.message, e.stack);
+                    throw new AuthenticationError("Retrieving profile's data.", e.code, e.status);
+                }
+                console.error(e.message, e.stack);
                 throw new AppError(e.message, e.code, e.status);
+                
             }
             console.error(e);
-            throw new Error(`${e}`);
+            throw new Error("Error at AuthService's login method.");
         }
     }
 

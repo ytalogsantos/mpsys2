@@ -52,7 +52,7 @@ export class NoteController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.MAINTENANCE_NOTE_INTERNAL_ERROR});
+            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
         }
     }
 
@@ -71,7 +71,7 @@ export class NoteController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.MAINTENANCE_NOTE_INTERNAL_ERROR});
+            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
         }
     }
 
@@ -88,7 +88,7 @@ export class NoteController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.MAINTENANCE_NOTE_INTERNAL_ERROR});
+            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
         }
     }
 
