@@ -59,7 +59,7 @@ export class AuthService {
             }
 
             const profile = await this.profileService.getByUserId(user.id);
-            const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "1m"});
+            const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "2m"});
             return { token, profile};
 
         } catch (e) {
@@ -72,6 +72,7 @@ export class AuthService {
                 }
                 throw new AppError(e.message, e.code, e.status);
             }
+            console.error(e);
             throw new Error(`${e}`);
         }
     }

@@ -58,6 +58,7 @@ export class UserService {
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                console.error(e);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             throw new Error(`${e}`);
