@@ -15,16 +15,14 @@ export class ProfileController {
         try {
             const profiles = await this.service.getAll();
             if (!profiles) {
-                console.log(ErrorCodes.USER_NOT_FOUND);
                 return res.status(404).json({message: "No profiles were found.", code: ErrorCodes.PROFILE_NOT_FOUND});
             }
             return res.status(200).json({profiles});
         } catch (e) {
             if (e instanceof AppError) {
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.error(ErrorCodes.PROFILE_INTERNAL_ERROR);
-            return res.status(500).json({message: `${ErrorCodes.PROFILE_INTERNAL_ERROR} -- Internal error.`});
+            return res.status(500).json({message: "Internal error at getAll process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
@@ -38,13 +36,10 @@ export class ProfileController {
             }
             return res.status(200).json({profile});
         } catch (e) {
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    return res.status(400).json({message: `The Id provided is not valid.`, code: e.code});
-                }
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+             if (e instanceof AppError) {
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json(`Operation failed due to an internal error -- ${ErrorCodes.PROFILE_INTERNAL_ERROR}`);
+            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
@@ -56,13 +51,10 @@ export class ProfileController {
             await this.service.update(id, data);
             return res.status(200).json({message: "Profile updated successfully."});
         } catch (e) {
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    return res.status(400).json({message: "The Id provived is invalid. Please, try again.", code: e.code});
-                }
-                return res.status(e.status).json({message: `${e.message}`, code: e.code});
+             if (e instanceof AppError) {
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `${ErrorCodes.PROFILE_INTERNAL_ERROR} -- Operation failed due to an internal error`});
+            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
@@ -73,15 +65,9 @@ export class ProfileController {
             return res.status(200).json({message: "Profile deleted successfully."});
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    return res.status(400).json({message: "The Id provided is invalid. Please, try again.", code: e.code});
-                }
-                if (e.code === ErrorCodes.PROFILE_NOT_FOUND) {
-                    return res.status(404).json({message: "Profile not found. Please, try again.", code: e.code});
-                }
-                return res.status(500).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `${ErrorCodes.PROFILE_INTERNAL_ERROR} -- Internal error.`});
+            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 }

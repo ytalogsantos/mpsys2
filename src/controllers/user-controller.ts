@@ -20,13 +20,9 @@ export class UserController {
             return res.status(200).json({user});
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_USER_ID) {
-                    return res.status(400).json({message: `The Id provided is not valid.`, code: e.code});
-                }
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error.`});
+            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
@@ -41,10 +37,9 @@ export class UserController {
 
         } catch (e) {
             if (e instanceof AppError) {
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error.`});
+            return res.status(500).json({message: "Internal error at getAll process.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
@@ -78,13 +73,9 @@ export class UserController {
 
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_USER_ID) {
-                    return res.status(400).json({message: "The Id provided is invalid. Please, try again.", code: e.code});
-                }
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.log(`${ErrorCodes.USER_INTERNAL_ERROR} -- ${e}`);
-            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error.`});
+            return res.status(500).json({message: "Internal error at update process.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
@@ -102,15 +93,9 @@ export class UserController {
 
         } catch (e) {
             if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_USER_ID) {
-                    return res.status(400).json({message: "The Id provided is invalid. Please, try again.", code: e.code});
-                }
-                if (e.code === ErrorCodes.USER_NOT_FOUND) {
-                    return res.status(404).json({message: "User not found. Please, try again.", code: e.code});
-                }
-                return res.status(e.status).json({message: `Operation failed -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `${ErrorCodes.USER_INTERNAL_ERROR} -- Internal error`});
+            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 

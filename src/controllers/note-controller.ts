@@ -18,11 +18,9 @@ export class NoteController {
             return await this.noteService.create(note);
         } catch (e) {
             if (e instanceof AppError)  {
-                console.error(e.message, e.stack);
-                return res.status(e.status).json({message: `Internal error -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.error(e);
-            return res.status(500).json({message: `Internal server error. Please, try again later.`});
+            return res.status(500).json({message: `Internal server error. Please, try again later.`, code: ErrorCodes.NOTE_INTERNAL_ERROR});
         }
     }
 
@@ -32,10 +30,8 @@ export class NoteController {
             return await this.noteService.getById(noteId);
         } catch (e) {
             if (e instanceof AppError)  {
-                console.error(e.message, e.stack);
-                return res.status(e.status).json({message: `Internal error -- ${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            console.error(e);
             return res.status(500).json({message: `Internal server error. Please, try again later.`});
         }
     }
@@ -49,10 +45,10 @@ export class NoteController {
             if (e instanceof AuthorizationError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            if (e instanceof AppError) {
-                return res.status(e.status).json({message: `${e.message}`, code: e.code});
+            if (e instanceof AppError)  {
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
+            return res.status(500).json({message: `Internal server error. Please, try again later.`});
         }
     }
 
@@ -68,10 +64,10 @@ export class NoteController {
             if (e instanceof AuthorizationError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            if (e instanceof AppError) {
-                return res.status(e.status).json({message: `${e.message}`, code: e.code});
+            if (e instanceof AppError)  {
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
+            return res.status(500).json({message: `Internal server error. Please, try again later.`});
         }
     }
 
@@ -85,12 +81,10 @@ export class NoteController {
             if (e instanceof AuthorizationError) {
                 return res.status(e.status).json({message: `${e.message}`, code: e.code});
             }
-            if (e instanceof AppError) {
-                return res.status(e.status).json({message: `${e.message}`, code: e.code});
+            if (e instanceof AppError)  {
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
-            res.status(500).json({message: "Internal server error.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
+            return res.status(500).json({message: `Internal server error. Please, try again later.`});
         }
     }
-
-
 }
