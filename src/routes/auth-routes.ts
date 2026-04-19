@@ -8,10 +8,10 @@ const userService = new UserService();
 const profileService = new ProfileService();
 const registerService = new AuthService(userService, profileService);
 const authController = new AuthController(registerService);
-const auth = express.Router();
+const authRouter = express.Router();
 
-auth.post("/auth/register", authController.register);
-auth.post("/auth/login", authController.login);
+authRouter.post("/auth/register", authController.register);
+authRouter.post("/auth/login", authController.login);
 
 
-export { auth };
+export { authRouter };

@@ -4,11 +4,11 @@ import { UserService } from "../services/user-service.js";
 
 const service = new UserService();
 const controller = new UserController(service);
-const users = express.Router();
+const userRouter = express.Router();
 
-users.get("/users/:id", controller.getById);
-users.get("/users", controller.getAll);
-users.put("/users/:id", controller.update);
-users.delete("/users/:id", controller.delete);
+userRouter.get("/users/:id", controller.getById);
+userRouter.get("/users", controller.getAll);
+userRouter.put("/users/:id", controller.update);
+userRouter.delete("/users/:id", controller.delete);
 
-export { users };
+export { userRouter };

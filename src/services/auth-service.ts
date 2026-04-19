@@ -8,6 +8,7 @@ import { AppError } from "../tools/errors/app-error.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+import type { CreateUserInput, LoginUserRequest } from "../interfaces/dtos/user.js";
 
 
 export class AuthService {
@@ -20,10 +21,11 @@ export class AuthService {
         this.profileService = profileService;
     };
 
-    public async register(userInput: Prisma.usersCreateInput, profileInput: Prisma.profilesCreateInput): Promise<Prisma.profilesModel> {
+    public async register(userInput: CreateUserInput, profileInput: Prisma.profilesCreateInput): Promise<Prisma.profilesModel> {
         try {
             userInput.password = await bcrypt.hash(userInput.password, 10);
             const user: Prisma.usersModel = await this.userService.create(userInput);
+            
             const profile: Prisma.profilesModel = await this.profileService.create({
                 users: {
                     connect: { id: user.id }
@@ -48,7 +50,7 @@ export class AuthService {
         }
     }
 
-    public async login(userInput: Prisma.usersModel): Promise<Object> {
+    public async login(userInput: LoginUserRequest): Promise<Object> {
         const secret: string = `${process.env.JWT_SECRET}`;
         try {
             const { email, password } = userInput;

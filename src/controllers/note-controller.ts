@@ -3,7 +3,7 @@ import type { RequestHandler, Request, Response } from "express";
 import { Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
-import { ErrorCodes } from "@/tools/errors/error.codes.js";
+import { ErrorCodes } from "../tools/errors/error.codes.js";
 
 export class NoteController {
     private readonly noteService: NoteService;
@@ -39,16 +39,16 @@ export class NoteController {
     getAll: RequestHandler = async (req: Request, res: Response) => {
         const userRole: Role = req.body.userRole;
         try {
-            const users: Prisma.maintenance_notesModel[] | null = await this.noteService.getAll(userRole);
+            const users = await this.noteService.getAll(userRole);
             return res.status(200).json({users});
         } catch (e) {
             if (e instanceof AuthorizationError) {
-                return res.status(e.status).json({message: `${e.message}`, code: e.code});
+                return res.status(e.status).json({message: e.message, code: e.code});
             }
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `Internal server error. Please, try again later.`});
+            return res.status(500).json({message: "Internal server error. Please, try again later."});
         }
     }
 

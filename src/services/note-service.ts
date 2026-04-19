@@ -41,6 +41,7 @@ export class NoteService {
 
     public async getAll(userRole: Role): Promise<Prisma.maintenance_notesModel[] | null> {
         try {
+            console.log("### ROLE -> ", userRole);
             if ((userRole != Role.ADMIN) && (userRole != Role.GATEKEEPER)) {
                 throw new AuthorizationError("Access denied.", ErrorCodes.ACESS_DENIED, 403);
             }

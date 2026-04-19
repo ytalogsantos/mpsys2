@@ -2,14 +2,15 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
+import type { CreateUserInput, CreateUserResponse } from "../interfaces/dtos/user.js";
 
 export class UserService {
 
-    public async create(userData: Prisma.usersCreateInput): Promise<Prisma.usersModel> {
+    public async create(userData: CreateUserInput): Promise<Prisma.usersModel> {
         try {
             return await prisma.users.create({ 
-                data: userData
-            }); 
+                data: { email: userData.email, password: userData.password }
+            });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {
@@ -25,8 +26,8 @@ export class UserService {
     }
 
     public async getAll(): Promise<Prisma.usersModel[] | null> {
-        try {
-            return await prisma.users.findMany();
+            try {
+                return await prisma.users.findMany();
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 console.error(e.message, e.stack);

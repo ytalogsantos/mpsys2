@@ -1,16 +1,15 @@
-import { UserService } from "../services/user-service.js";
+import { isEmailValid, isPasswordValid } from "../tools/user-input-filter.js";
 import type { Request, RequestHandler, Response } from "express";
+import { UserService } from "../services/user-service.js";
+import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
-import { ErrorCodes } from "../tools/errors/error.codes.js";
-import { isEmailValid, isPasswordValid } from "../tools/user-input-filter.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
 
     getById: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
-
         try {
             const user = await this.service.getById(id);
             if (!user) {

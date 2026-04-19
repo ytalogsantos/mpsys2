@@ -4,10 +4,10 @@ import { ProfileService } from "../services/profile-service.js";
 
 const service = new ProfileService();
 const controller = new ProfileController(service);
-const profiles = express.Router();
+const profileRouter = express.Router();
 
-profiles.get("/profiles", controller.getAll);
-profiles.get("/profiles/:id", controller.getById);
-profiles.put("/profiles/:id", controller.update);
-profiles.delete("/profiles/:id", controller.delete);
-export { profiles };
+profileRouter.get("/profiles/:id", controller.getById);
+profileRouter.get("/profiles", controller.getAll);
+profileRouter.put("/profiles/:id", controller.update);
+profileRouter.delete("/profiles/:id", controller.delete);
+export { profileRouter };
