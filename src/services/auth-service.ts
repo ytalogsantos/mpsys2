@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import type { CreateUserInput, LoginUserRequest } from "../interfaces/dtos/user.js";
+import type { CreateProfileInput } from "../interfaces/dtos/profile.js";
 
 
 export class AuthService {
@@ -21,17 +22,15 @@ export class AuthService {
         this.profileService = profileService;
     };
 
-    public async register(userInput: CreateUserInput, profileInput: Prisma.profilesCreateInput): Promise<Prisma.profilesModel> {
+    public async register(userInput: CreateUserInput, profileInput: CreateProfileInput): Promise<Prisma.profilesModel> {
         try {
             userInput.password = await bcrypt.hash(userInput.password, 10);
             const user: Prisma.usersModel = await this.userService.create(userInput);
             
             const profile: Prisma.profilesModel = await this.profileService.create({
-                users: {
-                    connect: { id: user.id }
-                },
+                userId: user.id,
                 name: profileInput.name,
-                role: profileInput.role || Role.PLANNER,
+                role: profileInput.role,
             });
 
             return profile;

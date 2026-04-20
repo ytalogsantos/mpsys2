@@ -2,7 +2,7 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateUserInput, CreateUserResponse } from "../interfaces/dtos/user.js";
+import type { CreateUserInput } from "../interfaces/dtos/user.js";
 
 export class UserService {
 
@@ -14,10 +14,10 @@ export class UserService {
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {
-                    console.error(e.message, e.stack);
+                    console.error(e.message);
                     throw new AppError("User already exists.", ErrorCodes.USER_ALREADY_EXISTS, 400);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
@@ -30,7 +30,7 @@ export class UserService {
                 return await prisma.users.findMany();
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
@@ -72,14 +72,14 @@ export class UserService {
         }
     }
 
-    public async update(id: string, userData: Prisma.usersCreateInput): Promise<void> {
+    public async update(id: string, userData: CreateUserInput): Promise<void> {
         try {
             const user = await this.getById(id);
             if (!user) {
                 throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 400);
             }
             await prisma.users.update({
-                where: { id: id }, 
+                where: { id }, 
                 data: userData
             });
         } catch (e) {
