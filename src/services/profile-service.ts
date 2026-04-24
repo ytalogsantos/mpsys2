@@ -87,18 +87,6 @@ export class ProfileService {
             if (!profile) {
                 throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
             }
-
-            if ("role" in profileData) {
-                if (profile.role != Role.ADMIN) {
-                    throw new AuthorizationError("This user is not allowed to change its role.", ErrorCodes.ACESS_DENIED, 403);
-                }
-                profile.role = profileData.role;
-            }
-
-            if ("name" in profileData) {
-                profile.name = profileData.name;
-            }
-
             await prisma.profiles.update({
                 where: { id },
                 data: {
@@ -126,8 +114,23 @@ export class ProfileService {
     }
 
 
-    public async updateRole(role: UpdateProfileRole): Promise<void> {
-        
+    public async updateRole(profileId: string, profileData: UpdateProfileRole): Promise<void> {
+        const profile = await this.getById(profileId);
+        if (!profile) {
+            throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
+        }
+        if ("role" in profileData) {
+            if (profile.role != Role.ADMIN) {
+                throw new AuthorizationError("This user is not allowed to change its role.", ErrorCodes.ACESS_DENIED, 403);
+            }
+            profile.role = profileData.role;
+        }
+        await prisma.profiles.update({
+            where: { id: profileId },
+            data: {
+                role: profile.role
+            }
+        });
     }
 
     public async delete(id: string): Promise<void> {

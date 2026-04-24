@@ -3,7 +3,7 @@ import type { Request, RequestHandler, Response } from "express";
 import { UserService } from "../services/user-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AppError } from "../tools/errors/app-error.js";
-import type { UpdateUserRequest, CreateUserResponse } from "@interfaces/dtos/user.js";
+import type { UpdateUserRequest } from "@interfaces/dtos/user.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
