@@ -14,7 +14,8 @@ export class NoteService {
                     title: noteData.title,
                     priority: noteData.priority,
                     description: noteData.description,
-                    profile_id: noteData.profileId
+                    profile_id: noteData.profileId,
+                    note_status: noteData.noteStatus,
                 }
             });
         } catch (e) {
@@ -92,6 +93,7 @@ export class NoteService {
                     title: noteData.title,
                     priority: noteData.priority,
                     description: noteData.description,
+                    note_status: noteData.noteStatus,
                 }
             });
         } catch (e) {

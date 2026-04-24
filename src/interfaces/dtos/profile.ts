@@ -6,12 +6,8 @@ export interface CreateProfileInput {
     role: Role
 }
 
-export interface UpdateProfileName {
-    name: string,
-}
-
-export interface UpdateProfileRole {
-    role: Role,
+export interface UpdateProfileNameRequest {
+    name: string
 }
 
 export interface CreateProfileRequest {

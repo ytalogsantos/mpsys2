@@ -2,8 +2,8 @@ import { isEmailValid, isPasswordValid } from "../tools/user-input-filter.js";
 import type { Request, RequestHandler, Response } from "express";
 import { UserService } from "../services/user-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import { Prisma } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
+import type { UpdateUserRequest, CreateUserResponse } from "@interfaces/dtos/user.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
@@ -44,22 +44,19 @@ export class UserController {
 
     update: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
-        const body: Prisma.usersCreateInput = req.body;
-
-        const email = body["email"];
-        const password = body["password"];
+        const userData: UpdateUserRequest = req.body;
+        const email = userData.email
+        const password = userData.password;
         
-        if (Object.keys(body).length == 0) {
-            return res.status(400).json({message: "Please, provide the data for updating.", code: ErrorCodes.INVALID_USER_DATA});
+        if (Object.keys(userData).length == 0) {
+            return res.status(400).json({message: "Fields can't be empty.", code: ErrorCodes.INVALID_USER_DATA});
         }
-
         if (email) {
             if (!isEmailValid(email)) {
                 console.error(ErrorCodes.INVALID_USER_EMAIL);
                 return res.status(400).json({message: "Invalid email format. Please, try again.", code: ErrorCodes.INVALID_USER_EMAIL});
             }
         }
-
         if (password) {
             if (!isPasswordValid(password)) {
                 return res.status(400).json({message: "Password is too weak. Please, include numbers, special characters and capital letters.", code: ErrorCodes.INVALID_USER_PASSWORD_FORMAT});
@@ -67,7 +64,7 @@ export class UserController {
         }
 
         try { 
-            await this.service.update(id, body);
+            await this.service.update(id, userData);
             return res.status(200).json({message: "User updated successfully."});
 
         } catch (e) {
@@ -94,7 +91,7 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.USER_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error at delete process.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 

@@ -2,7 +2,7 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateUserInput } from "../interfaces/dtos/user.js";
+import type { CreateUserInput, UpdateUserInput } from "../interfaces/dtos/user.js";
 
 export class UserService {
 
@@ -72,7 +72,7 @@ export class UserService {
         }
     }
 
-    public async update(id: string, userData: CreateUserInput): Promise<void> {
+    public async update(id: string, userData: UpdateUserInput): Promise<void> {
         try {
             const user = await this.getById(id);
             if (!user) {

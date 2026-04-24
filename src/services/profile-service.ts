@@ -81,7 +81,7 @@ export class ProfileService {
         }
     }
 
-    public async update(id: string, profileData: UpdateProfileName | UpdateProfileRole): Promise<void> {
+    public async updateName(id: string, profileData: UpdateProfileName): Promise<void> {
         try {
             const profile = await this.getById(id);
             if (!profile) {
@@ -123,6 +123,11 @@ export class ProfileService {
             console.error(e);
             throw new Error("Error at ProfileService's update method.");
         }
+    }
+
+
+    public async updateRole(role: UpdateProfileRole): Promise<void> {
+        
     }
 
     public async delete(id: string): Promise<void> {

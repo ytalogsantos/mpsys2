@@ -38,14 +38,14 @@ export class AuthService {
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.code === ErrorCodes.USER_ALREADY_EXISTS || e.code === ErrorCodes.PROFILE_ALREADY_EXISTS) {
-                    console.error(e.message, e.stack);
+                    console.error(e.message);
                     throw new RegistrationError("Account already exists.", e.code, e.status);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, e.code, e.status);
             }
             console.error(e);
-            throw new Error("Error at AuthService's register method.");
+            throw new Error("Register failed.");
         }
     }
 
@@ -53,7 +53,7 @@ export class AuthService {
         const secret: string = `${process.env.JWT_SECRET}`;
         try {
             const { email, password } = userInput;
-            const user: Prisma.usersModel | null = await this.userService.getByEmail(email);
+            const user = await this.userService.getByEmail(email);
             if (!user) {
                 throw new AuthenticationError("User not found.", ErrorCodes.USER_NOT_FOUND, 404);
             }
@@ -78,19 +78,18 @@ export class AuthService {
             }
             if (e instanceof AppError) {
                 if (e.code == ErrorCodes.INVALID_USER_ID) {
-                    console.error(e.message, e.stack);
+                    console.error(e.message);
                     throw new AuthenticationError(e.message, e.code, e.status);
                 }
                 if (e.code == ErrorCodes.PROFILE_INTERNAL_ERROR) {
-                    console.error(e.message, e.stack);
-                    throw new AuthenticationError("Retrieving profile's data.", e.code, e.status);
+                    console.error(e.message);
+                    throw new AuthenticationError("Authentication failed.", e.code, e.status);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, e.code, e.status);
-                
             }
             console.error(e);
-            throw new Error("Error at AuthService's login method.");
+            throw new Error("Login failed.");
         }
     }
 

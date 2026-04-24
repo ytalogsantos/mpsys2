@@ -11,7 +11,7 @@ export class ProfileController {
         this.service = service;
     }
 
-    getAll: RequestHandler = async (req: Request, res: Response) => {
+    getAll: RequestHandler = async (req: Request, res: Response) => {   
         try {
             const profiles = await this.service.getAll();
             if (!profiles) {
@@ -58,7 +58,7 @@ export class ProfileController {
         }
     }
 
-    delete: RequestHandler = async (req: Request, res: Response) => {
+    delete: RequestHandler = async (req: Request, res: Response) => { 
         const id: string = String(req.params.id);
         try {
             await this.service.delete(id);

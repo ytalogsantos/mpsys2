@@ -8,6 +8,16 @@ export interface CreateUserRequest {
     password: string
 }
 
+export interface UpdateUserRequest {
+    email?: string,
+    password?: string,
+}
+
+export interface UpdateUserInput {
+    email?: string,
+    password?: string,
+}
+
 export interface CreateUserResponse {
     id: string,
     email: string,
