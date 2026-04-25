@@ -31,7 +31,7 @@ export class NoteService {
                 throw new AppError(e.message, ErrorCodes.NOTE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at NoteService's create method.");
+            throw new Error("Note creation failed.");
         }
     }
 
@@ -48,7 +48,7 @@ export class NoteService {
                 throw new AppError(e.message, ErrorCodes.NOTE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at NoteService's getById method.");
+            throw new Error("Find note failed.");
         }
     }
 
@@ -71,7 +71,7 @@ export class NoteService {
                 throw new AppError(e.message, ErrorCodes.NOTE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at NoteService's getAll method.");
+            throw new Error("Find notes failed.");
         }
     }
 

@@ -1,9 +1,10 @@
 import { NoteService } from "../services/note-service.js";
 import type { RequestHandler, Request, Response } from "express";
-import { Prisma, Role } from "../../generated/prisma/client.js";
+import { Note_Status, Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
+import type { CreateNoteInput, CreateNoteRequest, UpdateNoteRequest } from "../interfaces/dtos/note.js";
 
 export class NoteController {
     private readonly noteService: NoteService;
@@ -14,13 +15,14 @@ export class NoteController {
 
     create: RequestHandler = async (req: Request, res: Response) => {
         try {
-            const note: Prisma.maintenance_notesCreateInput = req.body;
+            const noteData: CreateNoteRequest = req.body;
+            const note: CreateNoteInput = {...noteData, noteStatus: Note_Status.OPEN}
             return await this.noteService.create(note);
         } catch (e) {
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `Internal server error. Please, try again later.`, code: ErrorCodes.NOTE_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal server error. Please, try again later.", code: ErrorCodes.NOTE_INTERNAL_ERROR});
         }
     }
 
@@ -32,7 +34,7 @@ export class NoteController {
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `Internal server error. Please, try again later.`});
+            return res.status(500).json({message: "Internal server error. Please, try again later."});
         }
     }
 
@@ -54,11 +56,11 @@ export class NoteController {
 
     update: RequestHandler = async (req: Request, res: Response) => {
         const noteId: string = String(req.params.id);
-        const userRole: Role = req.body.userRole;
-        const noteData: Prisma.maintenance_notesCreateInput = req.body.noteData;
+        const noteData: UpdateNoteRequest = req.body;
+        const profileRole = noteData.profileRole;
 
         try {
-            await this.noteService.update(userRole, noteId, noteData);
+            await this.noteService.update(profileRole, noteId, noteData);
             return res.status(204).json({message: "Note updated successfully."});
         } catch (e) {
             if (e instanceof AuthorizationError) {
@@ -67,7 +69,7 @@ export class NoteController {
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `Internal server error. Please, try again later.`});
+            return res.status(500).json({message: "Internal server error. Please, try again later."});
         }
     }
 
@@ -84,7 +86,7 @@ export class NoteController {
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: `Internal server error. Please, try again later.`});
+            return res.status(500).json({message: "Internal server error. Please, try again later."});
         }
     }
 }

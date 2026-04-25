@@ -1,17 +1,8 @@
 import type { Role } from "@generated/prisma/enums.js";
 
 export interface CreateProfileInput {
-    userId: string,
     name: string,
     role: Role
-}
-
-export interface UpdateProfileRole {
-    role: Role,
-}
-
-export interface UpdateProfileName {
-    name: string,
 }
 
 export interface CreateProfileRequest {
@@ -25,4 +16,14 @@ export interface CreateProfileResponse {
     id: string,
     name: string,
     role: Role,
+}
+
+export interface UpdateProfileRequest {
+    name?: string,
+    role?: Role,
+}
+
+export interface UpdateProfileInput {
+    name?: string,
+    role?: Role,
 }

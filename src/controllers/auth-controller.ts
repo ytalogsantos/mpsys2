@@ -7,6 +7,9 @@ import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AuthService } from "../services/auth-service.js";
 import { AppError } from "../tools/errors/app-error.js";
 import "dotenv/config";
+import type { LoginUserRequest, LoginUserResponse, RegisterProfileInput, RegisterUserRequest } from "../interfaces/dtos/auth.js";
+import type { CreateUserInput } from "@interfaces/dtos/user.js";
+import type { CreateProfileInput } from "@interfaces/dtos/profile.js";
 
 export class AuthController {
     private readonly authService: AuthService;
@@ -17,28 +20,27 @@ export class AuthController {
 
     register: RequestHandler = async (req: Request, res: Response) => {
 
-        const email: string = req.body["email" as keyof Object];
-        const password: string = req.body["password" as keyof Object];
-        const name: string = req.body["name" as keyof Object];
-        const role: Role = req.body["role" as keyof Object];
-
-        const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter({ email, password });
+        const registerData: RegisterUserRequest = req.body;
+        const userData: CreateUserInput = { ...registerData };
+        const profileData: RegisterProfileInput = { ...registerData};
+        
+        const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter({ ...userData });
 
         if (!validUserInput) {
-            return res.status(400).json({ message: "Invalid user input. Account coundn't be creacted." });
+            return res.status(400).json({ message: "Invalid email or password. Account coundn't be creacted." });
         }
 
-        if (!name || name.trim().length < 3) {
+        if (!profileData.name || profileData.name.trim().length < 3) {
             return res.status(400).json({ message: "Name field is invalid or missing." });
         }
 
         const roles: string[] = Object.keys(Role);
-        if (!roles.includes(String(role))) {
-            return res.status(400).json({message: `Invalid role.`});
+        if (!roles.includes(String(profileData.role))) {
+            return res.status(400).json({message: "Invalid role."});
         }
 
         try {
-            const profile: Prisma.profilesModel = await this.authService.register({ email, password}, { name, role, users: {} });
+            const profile: Prisma.profilesModel = await this.authService.register({ ...userData}, { ...profileData });
             return res.status(201).json({message: "Account created successfully.", profile});
 
         } catch (e) {
@@ -53,7 +55,7 @@ export class AuthController {
     }
 
     login: RequestHandler = async (req: Request, res: Response) => {
-        const userCredentials: Prisma.usersModel = req.body;
+        const userCredentials: LoginUserRequest = req.body;
 
         try {
             const payload: Object = await this.authService.login(userCredentials);

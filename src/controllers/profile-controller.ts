@@ -2,7 +2,7 @@ import { ProfileService } from "../services/profile-service.js";
 import type { RequestHandler, Request, Response } from "express";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AppError } from "../tools/errors/app-error.js";
-import { Prisma } from "../../generated/prisma/client.js";
+import type { UpdateProfileRequest, UpdateProfileInput } from "../interfaces/dtos/profile.js";
 
 export class ProfileController {
     private readonly service: ProfileService;
@@ -22,7 +22,7 @@ export class ProfileController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getAll process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
@@ -39,22 +39,31 @@ export class ProfileController {
              if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
     update: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
-        const data: Prisma.profilesCreateInput = req.body;
-        
+        const profileData: UpdateProfileRequest = req.body;
+        let profile: UpdateProfileInput = {};
         try {
-            await this.service.update(id, data);
+
+            if ("name" in profileData) {
+                profile.name = profileData.name
+                await this.service.updateName(id, String(profile.name)); 
+            }
+
+            if ("role" in profileData) {
+                profile.role = profileData.role
+                await this.service.updateRole(id, profile.role)
+            }
             return res.status(200).json({message: "Profile updated successfully."});
         } catch (e) {
              if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 
@@ -67,7 +76,7 @@ export class ProfileController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
         }
     }
 }

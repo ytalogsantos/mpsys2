@@ -21,7 +21,7 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getById process.", code: ErrorCodes.USER_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
@@ -38,7 +38,7 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at getAll process.", code: ErrorCodes.USER_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
@@ -71,13 +71,12 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at update process.", code: ErrorCodes.USER_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 
     delete: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
-        
         try {
             const user = await this.service.getById(id);
             if (!user) {
@@ -91,7 +90,7 @@ export class UserController {
             if (e instanceof AppError) {
                 return res.status(e.status).json({message: e.message, code: e.code});
             }
-            return res.status(500).json({message: "Internal error at delete process.", code: ErrorCodes.USER_INTERNAL_ERROR});
+            return res.status(500).json({message: "Internal error.", code: ErrorCodes.USER_INTERNAL_ERROR});
         }
     }
 

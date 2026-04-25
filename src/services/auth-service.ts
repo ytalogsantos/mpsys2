@@ -8,8 +8,9 @@ import { AppError } from "../tools/errors/app-error.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import type { CreateUserInput, LoginUserRequest } from "../interfaces/dtos/user.js";
+import type { CreateUserInput } from "../interfaces/dtos/user.js";
 import type { CreateProfileInput } from "../interfaces/dtos/profile.js";
+import type { LoginUserRequest, LoginUserResponse } from "../interfaces/dtos/auth.js";
 
 
 export class AuthService {
@@ -26,13 +27,10 @@ export class AuthService {
         try {
             userInput.password = await bcrypt.hash(userInput.password, 10);
             const user: Prisma.usersModel = await this.userService.create(userInput);
-            
-            const profile: Prisma.profilesModel = await this.profileService.create({
-                userId: user.id,
+            const profile: Prisma.profilesModel = await this.profileService.create(user.email, {
                 name: profileInput.name,
                 role: profileInput.role,
             });
-
             return profile;
 
         } catch (e) {
@@ -40,6 +38,10 @@ export class AuthService {
                 if (e.code === ErrorCodes.USER_ALREADY_EXISTS || e.code === ErrorCodes.PROFILE_ALREADY_EXISTS) {
                     console.error(e.message);
                     throw new RegistrationError("Account already exists.", e.code, e.status);
+                }
+                if (e.code === ErrorCodes.USER_NOT_FOUND) {
+                    console.error(e.message);
+                    throw new AppError(e.message, e.code, e.status);
                 }
                 console.error(e.message);
                 throw new AppError(e.message, e.code, e.status);
@@ -49,7 +51,7 @@ export class AuthService {
         }
     }
 
-    public async login(userInput: LoginUserRequest): Promise<Object> {
+    public async login(userInput: LoginUserRequest): Promise<LoginUserResponse> {
         const secret: string = `${process.env.JWT_SECRET}`;
         try {
             const { email, password } = userInput;
@@ -65,7 +67,7 @@ export class AuthService {
 
             const profile = await this.profileService.getByUserId(user.id);
             const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "2m"});
-            return { token, profile};
+            return { id: profile.id, token, name: profile.name, email: user.email };
 
         } catch (e) {
             if (e instanceof AuthenticationError) {

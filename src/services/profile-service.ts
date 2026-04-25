@@ -2,15 +2,27 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateProfileInput, UpdateProfileName, UpdateProfileRole } from "../interfaces/dtos/profile.js";
+import type { CreateProfileInput } from "../interfaces/dtos/profile.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
+import type { UserService } from "./user-service.js";
 
 export class ProfileService {    
-    public async create(profileData: CreateProfileInput): Promise<Prisma.profilesModel> {
+    private readonly userService: UserService;
+    
+    constructor(userService: UserService) {
+        this.userService = userService;
+    }
+
+    public async create(userEmail: string, profileData: CreateProfileInput): Promise<Prisma.profilesModel> {
         try {
+            const user = await this.userService.getByEmail(userEmail);
+            if (!user) {
+                throw new AppError("User doesn't exist.", ErrorCodes.USER_NOT_FOUND, 404);
+            }
+
             return await prisma.profiles.create({
                 data: {
-                    user_id: profileData.userId,
+                    user_id: user.id,
                     name: profileData.name,
                     role: profileData.role
                 }
@@ -23,6 +35,12 @@ export class ProfileService {
                 }
                 console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
+            }
+            if (e instanceof AppError) {
+                if (e.code === ErrorCodes.USER_NOT_FOUND) {
+                    console.error(e.message);
+                    throw new AppError(e.message, e.code, e.status);
+                }
             }
             console.error(e);
             throw new Error("Registration failed.");
@@ -38,7 +56,7 @@ export class ProfileService {
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at ProfileService's getAll method.");
+            throw new Error("getAll failed.");
         }
     }
 
@@ -58,15 +76,19 @@ export class ProfileService {
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at ProfileService's getById method.");
+            throw new Error("getById failed.");
         }
     }
 
-    public async getByUserId(userId: string): Promise<Prisma.profilesModel | null> {
+    public async getByUserId(userId: string): Promise<Prisma.profilesModel> {
         try {
-            return await prisma.profiles.findUnique({
+            const profile = await prisma.profiles.findUnique({
                 where: { user_id: userId },
             });
+            if (!profile) {
+                throw new AppError("Error fetching profile.", ErrorCodes.PROFILE_NOT_FOUND, 500)
+            }
+            return profile;
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
@@ -77,11 +99,11 @@ export class ProfileService {
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at ProfileService's getByUserId method.");
+            throw new Error("getByUserId failed.");
         }
     }
 
-    public async updateName(id: string, profileData: UpdateProfileName): Promise<void> {
+    public async updateName(id: string, profileName: string): Promise<void> {
         try {
             const profile = await this.getById(id);
             if (!profile) {
@@ -90,8 +112,7 @@ export class ProfileService {
             await prisma.profiles.update({
                 where: { id },
                 data: {
-                    name: profile.name,
-                    role: profile.role
+                    name: profileName,
                 }
             });
         } catch (e) {
@@ -103,34 +124,46 @@ export class ProfileService {
                 console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
             }
+            console.error(e);
+            throw new Error("Update name failed.");
+        }
+    }
+
+    public async updateRole(profileId: string, profileRole: Role): Promise<void> {
+        try {
+            const profile = await this.getById(profileId);
+            if (!profile) {
+                throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
+            }
+            if (profile.role != Role.ADMIN) {
+                throw new AuthorizationError("This user is not allowed to change its role.", ErrorCodes.ACESS_DENIED, 403);
+            }
+            await prisma.profiles.update({
+                where: { id: profileId },
+                data: {
+                    role: profileRole
+                }
+            });
+            
+        } catch (e) {
             if (e instanceof AuthorizationError) {
                 console.error(e.message);
                 throw new AuthorizationError(e.message, e.code, e.status);
             }
-
+            if (e instanceof AppError) {
+                if (e.code === ErrorCodes.PROFILE_NOT_FOUND) {
+                    throw new AppError(e.message, e.code, e.status);
+                }
+                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
+                    console.error(e.message);
+                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
+                }
+                console.error(e.message);
+                throw new AppError(e.message, e.code, e.status);
+            }
             console.error(e);
-            throw new Error("Error at ProfileService's update method.");
+            throw new Error("Role update failed.");
         }
-    }
-
-
-    public async updateRole(profileId: string, profileData: UpdateProfileRole): Promise<void> {
-        const profile = await this.getById(profileId);
-        if (!profile) {
-            throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
-        }
-        if ("role" in profileData) {
-            if (profile.role != Role.ADMIN) {
-                throw new AuthorizationError("This user is not allowed to change its role.", ErrorCodes.ACESS_DENIED, 403);
-            }
-            profile.role = profileData.role;
-        }
-        await prisma.profiles.update({
-            where: { id: profileId },
-            data: {
-                role: profile.role
-            }
-        });
     }
 
     public async delete(id: string): Promise<void> {
@@ -157,7 +190,7 @@ export class ProfileService {
                 throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at ProfileService's delete method.");
+            throw new Error("Delete profile failed.");
         }
     }
 }

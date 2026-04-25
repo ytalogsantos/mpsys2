@@ -1,6 +1,6 @@
-import { Prisma } from "../../generated/prisma/client.js";
+import type { CreateUserInput } from "../interfaces/dtos/user.js";
 
-function UserInputFilter(obj: Prisma.usersCreateInput): Prisma.usersCreateInput | boolean {
+function UserInputFilter(obj: CreateUserInput): CreateUserInput | boolean {
     const { email, password } = obj;
 
     if (!email || !password) {
