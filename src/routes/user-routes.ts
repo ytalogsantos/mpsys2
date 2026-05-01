@@ -1,6 +1,7 @@
 import express from "express";
 import { UserController } from "../controllers/user-controller.js";
 import { UserService } from "../services/user-service.js";
+import { authMiddleware } from "../middlewares/auth-middleware.js";
 
 const service = new UserService();
 const controller = new UserController(service);

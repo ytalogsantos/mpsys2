@@ -13,5 +13,4 @@ noteRouter.get("/notes/:id", noteController.getById);
 noteRouter.put("/notes/:id", noteController.update);
 noteRouter.delete("/notes/:id", noteController.delete);
 
-
 export { noteRouter };
