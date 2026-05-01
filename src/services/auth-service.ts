@@ -53,8 +53,8 @@ export class AuthService {
 
     public async login(userInput: LoginUserRequest): Promise<LoginUserResponse> {
         const secret: string = `${process.env.JWT_SECRET}`;
+        const { email, password } = userInput;
         try {
-            const { email, password } = userInput;
             const user = await this.userService.getByEmail(email);
             if (!user) {
                 throw new AuthenticationError("User not found.", ErrorCodes.USER_NOT_FOUND, 404);
@@ -66,8 +66,14 @@ export class AuthService {
             }
 
             const profile = await this.profileService.getByUserId(user.id);
-            const token = await jwt.sign({ userId: user.id }, secret, { expiresIn: "2m"});
-            return { id: profile.id, token, name: profile.name, email: user.email };
+            const token = await jwt.sign({ userId: user.id, accessLevel: profile.role }, secret, { expiresIn: "2m"});
+            const loginResponse: LoginUserResponse = {
+                id: profile.id,
+                name: profile.name,
+                email: user.email,
+                token: token,
+            }
+            return loginResponse;
 
         } catch (e) {
             if (e instanceof AuthenticationError) {
@@ -94,6 +100,4 @@ export class AuthService {
             throw new Error("Login failed.");
         }
     }
-
-
 }

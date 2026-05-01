@@ -9,7 +9,6 @@ import { AppError } from "../tools/errors/app-error.js";
 import "dotenv/config";
 import type { LoginUserRequest, LoginUserResponse, RegisterProfileInput, RegisterUserRequest } from "../interfaces/dtos/auth.js";
 import type { CreateUserInput } from "@interfaces/dtos/user.js";
-import type { CreateProfileInput } from "@interfaces/dtos/profile.js";
 
 export class AuthController {
     private readonly authService: AuthService;
@@ -58,11 +57,8 @@ export class AuthController {
         const userCredentials: LoginUserRequest = req.body;
 
         try {
-            const payload: Object = await this.authService.login(userCredentials);
-            const profile: Prisma.profilesModel = payload["profile" as keyof object]; // TODO: refactor
-            const token: string = payload["token" as keyof object]; // TODO: refactor as well
-
-            return res.status(200).json({message: "Login successful.", token, profile: { id: profile.id, name: profile.name, role: profile.role }});
+            const loginResponse: LoginUserResponse = await this.authService.login(userCredentials);
+            return res.status(200).json({message: "Login successful.", loginResponse});
         } catch (e) {
             if (e instanceof AuthenticationError) {
                 if (e.code === ErrorCodes.INCORRET_PASSWORD || ErrorCodes.USER_NOT_FOUND) {

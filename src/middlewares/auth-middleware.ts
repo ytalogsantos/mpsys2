@@ -1,5 +1,6 @@
 import type { JwtPayloadSafe } from "../interfaces/jwt-payload-safe.js"
 import type { AuthRequest } from "../interfaces/auth-request.js";
+import type { AuthPayload } from "../interfaces/dtos/auth.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import type { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
@@ -13,7 +14,7 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
     }
     try {
         const token = String(authHeader.split(" ")[1]);
-        const payload = jwt.verify(token, secret) as JwtPayloadSafe;
+        const payload = jwt.verify(token, secret) as AuthPayload;
         req.user = payload;
         next();
     } catch (e) {

@@ -1,9 +1,11 @@
 import express from "express";
 import { ProfileController } from "../controllers/profile-controller.js";
 import { ProfileService } from "../services/profile-service.js";
+import { UserService } from "../services/user-service.js";
 
-const service = new ProfileService();
-const controller = new ProfileController(service);
+const userService = new UserService();
+const profileService = new ProfileService(userService);
+const controller = new ProfileController(profileService);
 const profileRouter = express.Router();
 
 profileRouter.get("/profiles/:id", controller.getById);

@@ -5,7 +5,7 @@ import { ProfileService } from "../services/profile-service.js";
 import { AuthService } from "../services/auth-service.js";
 
 const userService = new UserService();
-const profileService = new ProfileService();
+const profileService = new ProfileService(userService);
 const registerService = new AuthService(userService, profileService);
 const authController = new AuthController(registerService);
 const authRouter = express.Router();

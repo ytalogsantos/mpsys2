@@ -9,7 +9,7 @@ datasource db {
 
 model maintenance_notes {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  priority    Priority    @default(MODERATE)
+  priority    Priority    @default(AVERAGE)
   title       String      @db.VarChar(80)
   description String      @db.VarChar(80)
   profile_id  String      @db.Uuid
@@ -46,7 +46,7 @@ enum Role {
 
 enum Priority {
   LOW
-  MODERATE
+  AVERAGE
   HIGH
   URGENT
 }
@@ -58,5 +58,4 @@ enum Note_Status {
   EXECUTING
   DONE
   CLOSED
-  REJECTED
 }
