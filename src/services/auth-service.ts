@@ -3,14 +3,14 @@ import { RegistrationError } from "../tools/errors/registration-error.js";
 import { ProfileService } from "../services/profile-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { UserService } from "../services/user-service.js";
-import { Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import type { CreateUserInput } from "../interfaces/dtos/user.js";
-import type { CreateProfileInput } from "../interfaces/dtos/profile.js";
-import type { LoginUserRequest, LoginUserResponse } from "../interfaces/dtos/auth.js";
+import type { CreateProfileInput, CreateProfileResponse } from "../interfaces/dtos/profile.js";
+import type { LoginUserRequest, LoginUserResponse, RegisterUserRequest, RegisterUserResponse } from "../interfaces/dtos/auth.js";
+import type { CreateUserResponse } from "../interfaces/dtos/user.js";
 
 
 export class AuthService {
@@ -23,15 +23,21 @@ export class AuthService {
         this.profileService = profileService;
     };
 
-    public async register(userInput: CreateUserInput, profileInput: CreateProfileInput): Promise<Prisma.profilesModel> {
+    public async register(userInput: CreateUserInput, profileInput: CreateProfileInput): Promise<RegisterUserResponse> {
         try {
             userInput.password = await bcrypt.hash(userInput.password, 10);
-            const user: Prisma.usersModel = await this.userService.create(userInput);
-            const profile: Prisma.profilesModel = await this.profileService.create(user.email, {
+            const user: CreateUserResponse = await this.userService.create(userInput);
+            const profile: CreateProfileResponse = await this.profileService.create(user.email, {
                 name: profileInput.name,
                 role: profileInput.role,
             });
-            return profile;
+            const profileResponse: RegisterUserResponse = {
+                profileId: profile.id,
+                name: profile.name,
+                email: user.email,
+                role: profile.role,
+            }
+            return profileResponse;
 
         } catch (e) {
             if (e instanceof AppError) {
@@ -47,7 +53,7 @@ export class AuthService {
                 throw new AppError(e.message, e.code, e.status);
             }
             console.error(e);
-            throw new Error("Register failed.");
+            throw new Error("Account creation failed.");
         }
     }
 
@@ -66,7 +72,7 @@ export class AuthService {
             }
 
             const profile = await this.profileService.getByUserId(user.id);
-            const token = await jwt.sign({ userId: user.id, accessLevel: profile.role }, secret, { expiresIn: "2m"});
+            const token = await jwt.sign({ userId: user.id, role: profile.role }, secret, { expiresIn: "2m"});
             const loginResponse: LoginUserResponse = {
                 id: profile.id,
                 name: profile.name,

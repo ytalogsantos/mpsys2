@@ -49,15 +49,20 @@ export class ProfileController {
         let profile: UpdateProfileInput = {};
         try {
 
+            if (Object.entries(profileData).length < 1) {
+                return res.status(400).json({message: "Fields must not be empty."});
+            }
+
             if ("name" in profileData) {
                 profile.name = profileData.name
-                await this.service.updateName(id, String(profile.name)); 
+                await this.service.updateName(id, profile.name); 
             }
 
             if ("role" in profileData) {
                 profile.role = profileData.role
                 await this.service.updateRole(id, profile.role)
             }
+            
             return res.status(200).json({message: "Profile updated successfully."});
         } catch (e) {
              if (e instanceof AppError) {

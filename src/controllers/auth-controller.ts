@@ -7,8 +7,9 @@ import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AuthService } from "../services/auth-service.js";
 import { AppError } from "../tools/errors/app-error.js";
 import "dotenv/config";
-import type { LoginUserRequest, LoginUserResponse, RegisterProfileInput, RegisterUserRequest } from "../interfaces/dtos/auth.js";
+import type { LoginUserRequest, LoginUserResponse, RegisterUserRequest, RegisterUserResponse } from "../interfaces/dtos/auth.js";
 import type { CreateUserInput } from "@interfaces/dtos/user.js";
+import type { CreateProfileInput } from "@interfaces/dtos/profile.js";
 
 export class AuthController {
     private readonly authService: AuthService;
@@ -21,7 +22,7 @@ export class AuthController {
 
         const registerData: RegisterUserRequest = req.body;
         const userData: CreateUserInput = { ...registerData };
-        const profileData: RegisterProfileInput = { ...registerData};
+        const profileData: CreateProfileInput = { ...registerData};
         
         const validUserInput: Prisma.usersCreateInput | boolean = UserInputFilter({ ...userData });
 
@@ -39,7 +40,7 @@ export class AuthController {
         }
 
         try {
-            const profile: Prisma.profilesModel = await this.authService.register({ ...userData}, { ...profileData });
+            const profile: RegisterUserResponse = await this.authService.register({ ...userData}, { ...profileData });
             return res.status(201).json({message: "Account created successfully.", profile});
 
         } catch (e) {

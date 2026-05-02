@@ -29,7 +29,7 @@ export class UserController {
     getAll: RequestHandler = async (req: Request, res: Response) => {
         try {
             const users = await this.service.getAll();
-            if (!users) {
+            if (users.length < 1) {
                 console.log(ErrorCodes.USER_NOT_FOUND);
                 return res.status(404).json({message: "No users were found.", code: ErrorCodes.USER_NOT_FOUND});
             }

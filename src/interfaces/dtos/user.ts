@@ -3,9 +3,26 @@ export interface CreateUserInput {
     password: string
 }
 
-export interface CreateUserRequest {
+export interface CreateUserResponse {
+    id: string,
     email: string,
-    password: string
+    active: boolean,
+    created_at: Date,
+}
+
+export interface GetUserResponse {
+    id: string,
+    email: string,
+    active: boolean,
+    created_at: Date,
+}
+
+export interface GetUserByEmailResponse {
+    id: string,
+    email: string,
+    password: string,
+    active: boolean,
+    created_at: Date,
 }
 
 export interface UpdateUserRequest {
@@ -16,11 +33,4 @@ export interface UpdateUserRequest {
 export interface UpdateUserInput {
     email?: string,
     password?: string,
-}
-
-export interface CreateUserResponse {
-    id: string,
-    email: string,
-    active: boolean,
-    created_at: Date
 }

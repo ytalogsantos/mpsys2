@@ -2,11 +2,11 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateUserInput, UpdateUserInput } from "../interfaces/dtos/user.js";
+import type { CreateUserInput, CreateUserResponse, GetUserResponse, GetUserByEmailResponse, UpdateUserInput } from "../interfaces/dtos/user.js";
 
 export class UserService {
 
-    public async create(userData: CreateUserInput): Promise<Prisma.usersModel> {
+    public async create(userData: CreateUserInput): Promise<CreateUserResponse> {
         try {
             return await prisma.users.create({ 
                 data: { email: userData.email, password: userData.password }
@@ -21,11 +21,11 @@ export class UserService {
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at UserService's create method.");
+            throw new Error("User creation failed.");
         }
     }
 
-    public async getAll(): Promise<Prisma.usersModel[] | null> {
+    public async getAll(): Promise<GetUserResponse[]> {
             try {
                 return await prisma.users.findMany();
         } catch (e) {
@@ -34,11 +34,11 @@ export class UserService {
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at UserService's getAll method.");
+            throw new Error("Error searching for users.");
         }
     }
 
-    public async getById(id: string): Promise<Prisma.usersModel | null> {
+    public async getById(id: string): Promise<GetUserResponse | null> {
         try {
             return await prisma.users.findUnique({
                 where: { id },
@@ -46,29 +46,29 @@ export class UserService {
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
-                    console.error(e.message, e.stack);
+                    console.error(e.message);
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at UserService's getById method.");
+            throw new Error("Error searching for user.");
         }
     }
 
-    public async getByEmail(email: string): Promise<Prisma.usersModel | null> {
+    public async getByEmail(email: string): Promise<GetUserByEmailResponse | null> {
         try {
             return await prisma.users.findUnique({
                 where: { email },
             });
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at UserService's getByEmail method.");
+            throw new Error("Error searching for users.");
         }
     }
 
@@ -85,14 +85,14 @@ export class UserService {
         } catch (e) {
             if (e instanceof AppError) {
                 if (e.code === ErrorCodes.INVALID_USER_ID) {
-                    console.error(e.message, e.stack);
+                    console.error(e.message);
                     throw new AppError("Invalid Id.", ErrorCodes.INVALID_USER_ID, 400);
                 }
                 console.error(e.message, e.stack);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
             console.error(e);
-            throw new Error("Error at UserService's update method.");
+            throw new Error("Error updating user data.");
         }
     }
 
@@ -115,10 +115,10 @@ export class UserService {
                     console.error(e.message, e.stack);
                     throw new AppError("User not found.", ErrorCodes.USER_NOT_FOUND, 404);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.USER_INTERNAL_ERROR, 500);
             }
-            throw new Error("Error at UserService's delete method.");
+            throw new Error("Error deleting user.");
         }
     }
 }

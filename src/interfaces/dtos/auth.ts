@@ -6,9 +6,9 @@ export interface LoginUserRequest {
 }
 
 export interface LoginUserResponse {
-    id: string, // profileId
-    name: string, // profileName
-    email: string, // userEmail
+    id: string,
+    name: string,
+    email: string,
     token: string,
 }
 
@@ -19,12 +19,14 @@ export interface RegisterUserRequest {
     role: Role,
 }
 
-export interface RegisterProfileInput {
+export interface RegisterUserResponse {
+    profileId: string,
     name: string,
-    role: Role,
+    email: string,
+    role: string,
 }
 
 export interface AuthPayload {
     userId: string,
-    acessLevel: Role
+    role: Role
 }

@@ -5,14 +5,13 @@ export interface CreateProfileInput {
     role: Role
 }
 
-export interface CreateProfileRequest {
-    userId: string,
+export interface CreateProfileResponse {
+    id: string,
     name: string,
     role: Role,
 }
 
-
-export interface CreateProfileResponse {
+export interface GetProfileResponse {
     id: string,
     name: string,
     role: Role,
