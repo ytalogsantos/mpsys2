@@ -4,20 +4,25 @@ import { Note_Status, Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateNoteInput, CreateNoteRequest, UpdateNoteRequest } from "../interfaces/dtos/note.js";
+import type { CreateNoteInput, CreateNoteRequest, CreateNoteResponse, UpdateNoteRequest } from "../interfaces/dtos/note.js";
+import type { UserService } from "../services/user-service.js";
+import type { ProfileService } from "../services/profile-service.js";
 
 export class NoteController {
     private readonly noteService: NoteService;
+    private readonly userService: UserService;
+    private readonly profileService: ProfileService;
 
-    constructor(noteService: NoteService) {
+    constructor(noteService: NoteService, userService: UserService, profileService: ProfileService) {
         this.noteService = noteService;
+        this.userService = userService;
+        this.profileService = profileService;
     }
 
     create: RequestHandler = async (req: Request, res: Response) => {
         try {
             const noteData: CreateNoteRequest = req.body;
-            const note: CreateNoteInput = {...noteData, noteStatus: Note_Status.OPEN}
-            return await this.noteService.create(note);
+            return await this.noteService.create(noteData);
         } catch (e) {
             if (e instanceof AppError)  {
                 return res.status(e.status).json({message: e.message, code: e.code});

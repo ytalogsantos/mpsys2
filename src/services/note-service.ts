@@ -3,12 +3,27 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
-import type { CreateNoteInput, UpdateNoteInput } from "../interfaces/dtos/note.js";
+import type { CreateNoteInput, CreateNoteRequest, CreateNoteResponse, UpdateNoteInput } from "../interfaces/dtos/note.js";
+import type { profilesModel } from "@generated/prisma/models.js";
+import type { ProfileService } from "./profile-service.js";
 
 export class NoteService {
+    constructor(private readonly profileService: ProfileService) { }
     
-    public async create(noteData: CreateNoteInput): Promise<Prisma.maintenance_notesModel> {
+    public async create(noteData: CreateNoteRequest): Promise<CreateNoteResponse> {
         try {
+
+            const profile: profilesModel = await this.profileService.
+
+
+            const note: CreateNoteInput = {
+                title: noteData.title,
+                priority: noteData.priority,
+                description: noteData.description,
+
+            }
+
+
             return await prisma.maintenance_notes.create({
                 data: {
                     title: noteData.title,

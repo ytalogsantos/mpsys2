@@ -8,6 +8,20 @@ export interface CreateNoteInput {
     noteStatus: Note_Status,
 }
 
+export interface CreateNoteRequest {
+    title: string,
+    priority: Priority,
+    description: string,
+    userEmail: string,
+}
+
+export interface CreateNoteResponse {
+    id: string,
+    title: string,
+    priority: Priority,
+    description: string,
+}
+
 export interface UpdateNoteInput {
     title: string,
     priority: Priority,
@@ -24,16 +38,4 @@ export interface UpdateNoteRequest {
     noteStatus: Note_Status,
 }
 
-export interface CreateNoteRequest {
-    title: string,
-    priority: Priority,
-    description: string,
-    profileId: string,
-}
 
-export interface CreateNoteResponse {
-    id: string,
-    title: string,
-    priority: Priority,
-    description: string,
-}
