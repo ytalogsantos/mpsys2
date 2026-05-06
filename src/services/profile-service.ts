@@ -5,6 +5,8 @@ import { ErrorCodes } from "../tools/errors/error.codes.js";
 import type { CreateProfileInput, CreateProfileResponse, GetProfileResponse } from "../interfaces/dtos/profile.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
 import type { UserService } from "./user-service.js";
+import { isEmailValid } from "../tools/user-input-filter.js";
+import type { usersModel } from "@generated/prisma/models.js";
 
 export class ProfileService {    
     private readonly userService: UserService;
@@ -100,6 +102,27 @@ export class ProfileService {
             }
             console.error(e);
             throw new Error("Error searching for user/profile.");
+        }
+    }
+
+    public async getByUserEmail(email: string): Promise<GetProfileResponse> {
+        
+        if (!isEmailValid(email)) {
+            throw new AppError("Invalid email.", ErrorCodes.INVALID_USER_EMAIL, 400);
+        }
+
+        try {
+            const user = await this.userService.getByEmail(email);
+            if (!user) {
+                throw new AppError("No such user with this email.", ErrorCodes.USER_NOT_FOUND, 400);
+            }
+            const profile = await this.getByUserId(user.id);
+            return profile;
+        } catch (e) {
+            if (e instanceof AppError) {
+                throw new AppError(e.message, e.code, e.status);
+            }
+            throw new Error("Error searching for profile.");
         }
     }
 

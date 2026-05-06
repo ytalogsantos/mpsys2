@@ -3,36 +3,28 @@ import { Prisma, Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
-import type { CreateNoteInput, CreateNoteRequest, CreateNoteResponse, UpdateNoteInput } from "../interfaces/dtos/note.js";
-import type { profilesModel } from "@generated/prisma/models.js";
+import type { CreateNoteInput, CreateNoteResponse, GetNoteResponse, UpdateNoteInput } from "../interfaces/dtos/note.js";
 import type { ProfileService } from "./profile-service.js";
 
 export class NoteService {
-    constructor(private readonly profileService: ProfileService) { }
+    private readonly profileService: ProfileService;
+
+    constructor(profileService: ProfileService) { 
+        this.profileService = profileService;
+    }
     
-    public async create(noteData: CreateNoteRequest): Promise<CreateNoteResponse> {
+    public async create(noteData: CreateNoteInput): Promise<CreateNoteResponse> {
         try {
-
-            const profile: profilesModel = await this.profileService.
-
-
-            const note: CreateNoteInput = {
-                title: noteData.title,
-                priority: noteData.priority,
-                description: noteData.description,
-
-            }
-
-
-            return await prisma.maintenance_notes.create({
+            const profile = await this.profileService.getByUserEmail(noteData.userEmail);
+            const note = await prisma.maintenance_notes.create({
                 data: {
                     title: noteData.title,
                     priority: noteData.priority,
                     description: noteData.description,
-                    profile_id: noteData.profileId,
-                    note_status: noteData.noteStatus,
+                    profile_id: profile.id,
                 }
             });
+            return note;
         } catch (e) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2007") {
@@ -50,7 +42,7 @@ export class NoteService {
         }
     }
 
-    public async getById(noteId: string): Promise<Prisma.maintenance_notesModel | null> {
+    public async getById(noteId: string): Promise<GetNoteResponse | null> {
         try {
             return await prisma.maintenance_notes.findUnique({ where: {id: noteId }});
         } catch (e) {
@@ -59,7 +51,7 @@ export class NoteService {
                     console.error(e.message);
                     throw new AppError("Invalid id.", ErrorCodes.INVALID_NOTE_ID, 400);
                 }
-                console.error(e.message, e.stack);
+                console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.NOTE_INTERNAL_ERROR, 500);
             }
             console.error(e);
@@ -67,7 +59,7 @@ export class NoteService {
         }
     }
 
-    public async getAll(userRole: Role): Promise<Prisma.maintenance_notesModel[] | null> {
+    public async getAll(userRole: Role): Promise<GetNoteResponse[]> {
         try {
             if ((userRole != Role.ADMIN) && (userRole != Role.GATEKEEPER)) {
                 throw new AuthorizationError("Access denied.", ErrorCodes.ACESS_DENIED, 403);
@@ -76,10 +68,8 @@ export class NoteService {
 
         } catch (e) {
             if (e instanceof AuthorizationError) {
-                if (e.code === ErrorCodes.ACESS_DENIED) {
-                    console.log(e.message, e.stack);
-                    throw new AuthorizationError(e.message, e.code, e.status);
-                }
+                console.log(e.message);
+                throw new AuthorizationError(e.message, e.code, e.status);
             }
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 console.error(e.message);
@@ -117,6 +107,10 @@ export class NoteService {
                 throw new AuthorizationError(e.message, e.code, e.status);
             }
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
+                if (e.code === "P2007") {
+                    console.error(e.message);
+                    throw new AppError("Invalid id.", ErrorCodes.INVALID_NOTE_ID, 400);
+                }
                 console.error(e.message);
                 throw new AppError(e.message, ErrorCodes.NOTE_INTERNAL_ERROR, 500);
             }
@@ -125,12 +119,12 @@ export class NoteService {
                 throw new AppError(e.message, e.code, e.status);
             }
             console.error(e);
-            throw new Error("Error at NoteService's update method.");
+            throw new Error("Error updating note.");
         }
     }
 
     public async delete(userRole: Role, noteId: string): Promise<void> {
-        if ((userRole != Role.ADMIN) && (userRole != Role.GATEKEEPER)) {
+        if (userRole != Role.ADMIN) {
             throw new AuthorizationError("Access denied.", ErrorCodes.ACESS_DENIED, 403);
         }
         
@@ -152,5 +146,4 @@ export class NoteService {
             throw new Error("Error at NoteService's delete method.");
         }
     }
-
 }

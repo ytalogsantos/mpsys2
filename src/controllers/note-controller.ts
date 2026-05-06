@@ -1,22 +1,16 @@
 import { NoteService } from "../services/note-service.js";
 import type { RequestHandler, Request, Response } from "express";
-import { Note_Status, Prisma, Role } from "../../generated/prisma/client.js";
+import { Role } from "../../generated/prisma/client.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { AuthorizationError } from "../tools/errors/authorization-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateNoteInput, CreateNoteRequest, CreateNoteResponse, UpdateNoteRequest } from "../interfaces/dtos/note.js";
-import type { UserService } from "../services/user-service.js";
-import type { ProfileService } from "../services/profile-service.js";
+import type { CreateNoteRequest, UpdateNoteRequest } from "../interfaces/dtos/note.js";
 
 export class NoteController {
     private readonly noteService: NoteService;
-    private readonly userService: UserService;
-    private readonly profileService: ProfileService;
 
-    constructor(noteService: NoteService, userService: UserService, profileService: ProfileService) {
+    constructor(noteService: NoteService) {
         this.noteService = noteService;
-        this.userService = userService;
-        this.profileService = profileService;
     }
 
     create: RequestHandler = async (req: Request, res: Response) => {

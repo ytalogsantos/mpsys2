@@ -8,5 +8,4 @@ export class AppError extends Error {
         this.code = code;
         this.status = status;
     }
-
 }

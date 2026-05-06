@@ -4,7 +4,6 @@ import { UserService } from "../services/user-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AppError } from "../tools/errors/app-error.js";
 import type { UpdateUserRequest } from "@interfaces/dtos/user.js";
-import type { usersModel } from "@generated/prisma/models.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
