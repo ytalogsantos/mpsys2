@@ -3,8 +3,9 @@ import { prisma } from "../config/db.js";
 import { AppError } from "../tools/errors/app-error.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import type { CreateUserInput, CreateUserResponse, GetUserResponse, GetUserByEmailResponse, UpdateUserInput } from "../interfaces/dtos/user.js";
+import type { UserRepository } from "@interfaces/repositories/user-repository.js";
 
-export class UserService {
+export class UserService implements UserRepository{
 
     public async create(userData: CreateUserInput): Promise<CreateUserResponse> {
         try {
@@ -74,10 +75,10 @@ export class UserService {
 
     public async update(id: string, userData: UpdateUserInput): Promise<void> {
         try {
-            const user = await this.getById(id);
-            if (!user) {
-                throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 400);
-            }
+            // const user = await this.getById(id);
+            // if (!user) {
+            //     throw new AppError("User does not exist.", ErrorCodes.USER_NOT_FOUND, 400);
+            // }
             await prisma.users.update({
                 where: { id }, 
                 data: userData

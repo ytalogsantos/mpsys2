@@ -6,7 +6,6 @@ export interface CreateUserInput {
 export interface CreateUserResponse {
     id: string,
     email: string,
-    active: boolean,
     created_at: Date,
 }
 
