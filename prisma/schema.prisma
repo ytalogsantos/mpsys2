@@ -13,7 +13,7 @@ model MaintenanceNote {
   priority    NotePriority    @default(AVERAGE)
   title       String          
   description String         
-  created_at  DateTime        @default(now()) @db.Timestampz(6)
+  created_at  DateTime        @default(now()) @db.Timestamptz(6)
   note_status NoteStatus      @default(OPEN)
   profile     Profile         @relation(fields: [profile_id], references: [id])
   profile_id  String          @db.Uuid          
@@ -27,7 +27,7 @@ model User {
   profile       Profile?
   role          Role      @default(OPERATOR)
   active        Boolean   @default(true)
-  created_at    DateTime  @default(now()) @db.Timestampz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
 }
 
 model Profile {

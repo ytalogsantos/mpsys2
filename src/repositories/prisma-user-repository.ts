@@ -1,6 +1,7 @@
 import type { UserRepository } from "@interfaces/repositories/user-repository.js";
 import { prisma } from "@config/db.js";
-import type { CreateUserInput, CreateUserResponse, GetUserResponse, UpdateUserInput } from "@interfaces/dtos/user.js";
+import type { CreateUserResponse, GetUserResponse } from "@interfaces/dtos/user.js";
+import type { CreateUserInput, ListUsersInput, UpdateUserInput } from "@/schemas/user-schema";
 import { Prisma } from "@generated/prisma/client.js";
 import { RegistrationError } from "@/tools/errors/registration-error.js";
 import { ErrorCodes } from "@/tools/errors/error.codes.js";
@@ -12,18 +13,21 @@ export class PrismaUserRepository implements UserRepository {
 
         try {
 
-            const created = await prisma.users.create({
+            const created = await prisma.user.create({
                 data: userData
             });
 
-            return created;
+            return { ...created, created_at: created.created_at.toDateString() };
 
         } catch (e) {
 
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code === "P2002") {
-                    throw new RegistrationError("User is already registered.", ErrorCodes.USER_ALREADY_EXISTS)
+
+                    const message = "User is already registered.";
+                    throw new RegistrationError(message, ErrorCodes.USER_ALREADY_EXISTS);
+
                 }
 
             }
@@ -34,27 +38,32 @@ export class PrismaUserRepository implements UserRepository {
         
     }
 
-    public async get(): Promise<GetUserResponse[]> {
+    public async list(userFilters: ListUsersInput): Promise<GetUserResponse[]> {
 
-        const users = await prisma.users.findMany();
+        const userData = {
+            ...(userFilters.role && {
+                role: userFilters.role
+            }),
+            ...(userFilters.active && {
+                active: userFilters.active
+            }),
+            ...(userFilters.created_at && {
+                created_at: userFilters.created_at
+            })
+        };
+
+        const users = await prisma.user.findMany({
+            where: userData
+        });
+
         return users;
 
     }
 
     public async find(userId: string): Promise<GetUserResponse | null> {
     
-        const user = await prisma.users.findUnique({
+        const user = await prisma.user.findUnique({
             where: { id: userId }
-        });
-
-        return user;
-
-    }
-
-    public async findByEmail(userEmail: string): Promise<GetUserResponse | null> {
-        
-        const user = await prisma.users.findUnique({
-            where: { email: userEmail }
         });
 
         return user;
@@ -63,36 +72,20 @@ export class PrismaUserRepository implements UserRepository {
 
     public async update(userId: string, userData: UpdateUserInput): Promise<void> {
 
-        const updated = [];
-        let data = {};
-
-        if (userData.email) {
-
-            updated.push({
+        const userUpdateData = {
+            ...(userData.email && {
                 email: userData.email
-            });
-
-        }
-
-        if (userData.password) {
-            
-            updated.push({
+            }),
+            ...(userData.password && {
                 password: userData.password
-            });
-
-        }
-
-        for (let i = 0; i < updated.length; i++) {
-
-            data = { ...data, ...updated[i]};
-
-        }
+            })
+        };
 
         try {
 
-            await prisma.users.update({
+            await prisma.user.update({
                 where: { id: userId },
-                data: data
+                data: userUpdateData
             });
 
         } catch (e) {
@@ -101,7 +94,8 @@ export class PrismaUserRepository implements UserRepository {
 
                 if (e.code === "P2002") {
 
-                    throw new AppError("Email already registered.", ErrorCodes.USER_ALREADY_EXISTS);
+                    const message = "Email already registered.";
+                    throw new AppError(message, ErrorCodes.USER_ALREADY_EXISTS);
 
                 }
 
@@ -117,7 +111,7 @@ export class PrismaUserRepository implements UserRepository {
 
         try {
             
-            await prisma.users.delete({
+            await prisma.user.delete({
                 where: { id: userId }
             });
 
@@ -126,8 +120,9 @@ export class PrismaUserRepository implements UserRepository {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
                 if (e.code === "P02025") {
-
-                    throw new AppError("User not found.", ErrorCodes.USER_NOT_FOUND);
+                    
+                    const message = "User not found.";
+                    throw new AppError(message, ErrorCodes.USER_NOT_FOUND);
 
                 }
 

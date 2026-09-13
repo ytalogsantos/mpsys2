@@ -19,10 +19,11 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "esnext",
-    "moduleResolution": "nodenext",
+    "module": "esnext",
+    "target": "es2023",
+    "moduleResolution": "bundler",
     "types": [],
+    "esModuleInterop": true,
 
     // Other Outputs
     "sourceMap": true,
