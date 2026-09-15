@@ -1,30 +1,53 @@
 import { isEmailValid, isPasswordValid } from "../tools/user-input-filter.js";
 import type { Request, RequestHandler, Response } from "express";
+import { userIdParamSchema } from "@schemas/user-schema.js";
 import { UserService } from "../services/user-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";
 import { AppError } from "../tools/errors/app-error.js";
-import type { UpdateUserRequest } from "@interfaces/dtos/user.js";
 
 export class UserController {
-    constructor(private readonly service: UserService) { }
 
-    getById: RequestHandler = async (req: Request, res: Response) => {
-        const id: string = String(req.params.id);
+    constructor(private readonly userService: UserService) { }
+
+    find: RequestHandler = async (req: Request, res: Response) => {
+        
+        const idValidation = userIdParamSchema.safeParse(req.params);
+
+        if (!idValidation.success) {
+
+            const message = "User id is required to be in uuid type format."
+            return res.status(400).json(message);
+
+        }
+
         try {
-            const user = await this.service.getById(id);
+
+            const user = await this.userService.find(idValidation.data.id);
+
             if (!user) {
-                console.log(ErrorCodes.USER_NOT_FOUND);
-                return res.status(404).json({message: "User not found.", code: ErrorCodes.USER_NOT_FOUND});    
+
+                const message = "User not found.";
+                return res.status(404).json({ message, code: ErrorCodes.USER_NOT_FOUND });
+
             }
-            return res.status(200).json({user});
+
+            return res.status(200).json({ user });
+
         } catch (e) {
-            if (e instanceof AppError) {
-                return res.status(e.status).json({message: e.message, code: e.code});
+
+            if (e instanceof AppError && e.code === ErrorCodes.UNEXPECTED_DATABASE_ERROR) {
+
+                return res.status(500).json({message: e.message, code: e.code});
+
             }
-            return res.status(500).json({message: "Internal error.", code: ErrorCodes.USER_INTERNAL_ERROR});
+
+            console.error(e);
+            return res.status(500).json({message: "Internal error during search."});
+
         }
     }
 
+    // TODO
     getAll: RequestHandler = async (req: Request, res: Response) => {
         try {
             const users = await this.service.getAll();
@@ -42,6 +65,7 @@ export class UserController {
         }
     }
 
+    // TODO
     update: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
         const userData: UpdateUserRequest = req.body;
@@ -75,6 +99,7 @@ export class UserController {
         }
     }
 
+    // TODO
     delete: RequestHandler = async (req: Request, res: Response) => {
         const id: string = String(req.params.id);
         try {

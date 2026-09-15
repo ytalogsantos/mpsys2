@@ -1,5 +1,9 @@
 import * as z from "zod";
 
+export const userIdParamSchema = z.object({
+    id: z.uuid()
+});
+
 const createPasswordSchema = z
     .string()
     .regex(/^(?=.{8,64}$)\S+$/);
