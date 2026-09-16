@@ -24,7 +24,7 @@ export class UserService implements UserRepository {
 
     }
 
-    public async update(userId: string, userData: UpdateUserInput): Promise<void> {
+    public async update(userId: string, userData: UpdateUserInput): Promise<GetUserResponse> {
         
         return await this.userRepository.update(userId, userData);
 

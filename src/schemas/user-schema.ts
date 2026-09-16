@@ -31,7 +31,7 @@ const createUserSchema = z.object({
         .pipe(createPasswordSchema)
 });
 
-const listUsersSchema = z.object({
+export const listUsersSchema = z.object({
     role: z
         .string()
         .trim()
@@ -47,7 +47,7 @@ const listUsersSchema = z.object({
         .optional()
 });
 
-const updateUserSchema = z.object({
+export const updateUserSchema = z.object({
     email: z
         .email()
         .optional(),
@@ -59,14 +59,6 @@ const updateUserSchema = z.object({
 });
 
 
-type CreateUserInput = z.infer<typeof createUserSchema>;
-type ListUsersInput = z.infer<typeof listUsersSchema>;
-type UpdateUserInput = z.infer<typeof updateUserSchema>;
-
-export type
-{
-    createPasswordSchema,
-    CreateUserInput,
-    ListUsersInput,
-    UpdateUserInput
-}
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type ListUsersInput = z.infer<typeof listUsersSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;

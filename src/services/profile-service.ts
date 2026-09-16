@@ -1,16 +1,17 @@
-import { Prisma, Role } from "../../generated/prisma/client.js";
-import { prisma } from "../config/db.js";
-import { AppError } from "../tools/errors/app-error.js";
-import { ErrorCodes } from "../tools/errors/error.codes.js";
-import type { CreateProfileInput, CreateProfileResponse, GetProfileResponse } from "../interfaces/dtos/profile.js";
-import { AuthorizationError } from "../tools/errors/authorization-error.js";
-import type { UserService } from "./user-service.js";
-import { isEmailValid } from "../tools/user-input-filter.js";
-import type { usersModel } from "@generated/prisma/models.js";
+import { Prisma, Role } from "@generated/prisma/client";
+import { prisma } from "@/config/db";
+import { AppError } from "@/tools/errors/app-error";
+import { ErrorCodes } from "@/tools/errors/error.codes";
+import type {
+    CreateProfileInput,
+    CreateProfileResponse,
+    GetProfileResponse
+} from "@/interfaces/dtos/profile";
+import type { UserService } from "@services/user-service";
 
-export class ProfileService {    
+export class ProfileService {
     private readonly userService: UserService;
-    
+
     constructor(userService: UserService) {
         this.userService = userService;
     }
@@ -65,8 +66,8 @@ export class ProfileService {
     public async getById(profileId: string): Promise<GetProfileResponse | null> {
         try {
             const profile = await prisma.profiles.findUnique({
-                where: {id: profileId},
-                include: { users: true}
+                where: { id: profileId },
+                include: { users: true }
             });
             return profile;
         } catch (e) {
@@ -106,7 +107,7 @@ export class ProfileService {
     }
 
     public async getByUserEmail(email: string): Promise<GetProfileResponse> {
-        
+
         if (!isEmailValid(email)) {
             throw new AppError("Invalid email.", ErrorCodes.INVALID_USER_EMAIL, 400);
         }
@@ -167,7 +168,7 @@ export class ProfileService {
                     role: profileRole
                 }
             });
-            
+
         } catch (e) {
             if (e instanceof AuthorizationError) {
                 console.error(e.message);
@@ -196,7 +197,7 @@ export class ProfileService {
                 throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 400);
             }
             await prisma.profiles.delete({
-                where: {id: id}
+                where: { id: id }
             });
         } catch (e) {
             if (e instanceof AppError) {
