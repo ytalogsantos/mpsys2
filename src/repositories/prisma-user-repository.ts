@@ -118,6 +118,12 @@ export class PrismaUserRepository implements UserRepository {
 
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
+                if (e.code === "P2025") {
+
+                    throw new AppError("User not found.", ErrorCodes.RECORD_NOT_FOUND);
+
+                }
+
                 if (e.code === "P2002") {
 
                     throw new AppError(
@@ -125,6 +131,8 @@ export class PrismaUserRepository implements UserRepository {
                     );
 
                 }
+
+                throw new AppError(e.message, ErrorCodes.UNEXPECTED_DATABASE_ERROR);
 
             }
 
@@ -146,7 +154,7 @@ export class PrismaUserRepository implements UserRepository {
 
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
 
-                if (e.code === "P02025") {
+                if (e.code === "P2025") {
 
                     throw new AppError("User not found.", ErrorCodes.RECORD_NOT_FOUND);
 
