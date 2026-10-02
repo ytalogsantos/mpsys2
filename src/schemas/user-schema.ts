@@ -4,7 +4,7 @@ export const userIdParamSchema = z.object({
     id: z.uuid()
 });
 
-const createPasswordSchema = z
+export const createPasswordSchema = z
     .string()
     .regex(/^(?=.{8,64}$)\S+$/);
 
@@ -23,7 +23,7 @@ const userRoleSchema = z.enum(
     { error: "Invalid user role." }
 );
 
-const createUserSchema = z.object({
+export const createUserSchema = z.object({
     email: z.email(),
     password: z
         .string()

@@ -1,26 +1,23 @@
 import * as z from "zod";
 
-const profileIdSchema = z.object({
+export const profileIdSchema = z.object({
     id: z.uuid()
 });
 
-const profileNameSchema = z
+export const profileNameSchema = z
     .string()
     .trim()
 
 const createProfileSchema = z.object({
-
-    user_id: z
-        .uuid(),
-    name: profileNameSchema
-
-});
-
-const listProfilesSchema = z.object({
+    user_id: z.uuid(),
     name: profileNameSchema
 });
 
-const updateProfileSchema = z.object({
+export const listProfilesSchema = z.object({
+    name: profileNameSchema
+});
+
+export const updateProfileSchema = z.object({
     name: profileNameSchema
 });
 

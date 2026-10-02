@@ -1,220 +1,32 @@
-import { Prisma, Role } from "@generated/prisma/client";
-import { prisma } from "@/config/db";
-import { AppError } from "@/tools/errors/app-error";
-import { ErrorCodes } from "@/tools/errors/error.codes";
-import type {
-    CreateProfileInput,
-    CreateProfileResponse,
-    GetProfileResponse
-} from "@/interfaces/dtos/profile";
-import type { UserService } from "@services/user-service";
+import type { CreateProfileResponse, GetProfileResponse } from "@/interfaces/dtos/profile";
+import type { ProfileRepository } from "@interfaces/repositories/profile-repository";
+import type { CreateProfileInput, ListProfilesInput } from "@schemas/profile-schema";
 
 export class ProfileService {
-    private readonly userService: UserService;
 
-    constructor(userService: UserService) {
-        this.userService = userService;
+    constructor(private readonly profileRepository: ProfileRepository) { }
+
+    public async create(profileData: CreateProfileInput): Promise<CreateProfileResponse> {
+        
+        return await this.profileRepository.create(profileData);
+        
     }
 
-    public async create(userEmail: string, profileData: CreateProfileInput): Promise<CreateProfileResponse> {
-        try {
-            const user = await this.userService.getByEmail(userEmail);
-            if (!user) {
-                throw new AppError("User doesn't exist.", ErrorCodes.USER_NOT_FOUND, 404);
-            }
+    public async list(profileFilters: ListProfilesInput): Promise<GetProfileResponse[]> {
 
-            return await prisma.profiles.create({
-                data: {
-                    user_id: user.id,
-                    name: profileData.name,
-                    role: profileData.role
-                }
-            });
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2002") {
-                    console.error(e.message);
-                    throw new AppError("Profile already exists.", ErrorCodes.PROFILE_ALREADY_EXISTS, 400);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.USER_NOT_FOUND) {
-                    console.error(e.message);
-                    throw new AppError(e.message, e.code, e.status);
-                }
-            }
-            console.error(e);
-            throw new Error("Profile registration failed.");
-        }
+        return await this.profileRepository.list(profileFilters);
+
     }
 
-    public async getAll(): Promise<GetProfileResponse[]> {
-        try {
-            return await prisma.profiles.findMany();
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            console.error(e);
-            throw new Error("Error searching for profiles.");
-        }
+    public async find(profileId: string): Promise<GetProfileResponse | null> {
+
+        return await this.profileRepository.find(profileId);
+
     }
 
-    public async getById(profileId: string): Promise<GetProfileResponse | null> {
-        try {
-            const profile = await prisma.profiles.findUnique({
-                where: { id: profileId },
-                include: { users: true }
-            });
-            return profile;
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2007") {
-                    throw new AppError("Invalid profile Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            console.error(e);
-            throw new Error("Error searching for profile Id.");
-        }
-    }
-
-    public async getByUserId(userId: string): Promise<GetProfileResponse> {
-        try {
-            const profile = await prisma.profiles.findUnique({
-                where: { user_id: userId },
-            });
-            if (!profile) {
-                throw new AppError("Profile not found.", ErrorCodes.PROFILE_NOT_FOUND, 500)
-            }
-            return profile;
-        } catch (e) {
-            if (e instanceof Prisma.PrismaClientKnownRequestError) {
-                if (e.code === "P2007") {
-                    console.error(e.message);
-                    throw new AppError("Invalid user Id.", ErrorCodes.INVALID_USER_ID, 400);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            console.error(e);
-            throw new Error("Error searching for user/profile.");
-        }
-    }
-
-    public async getByUserEmail(email: string): Promise<GetProfileResponse> {
-
-        if (!isEmailValid(email)) {
-            throw new AppError("Invalid email.", ErrorCodes.INVALID_USER_EMAIL, 400);
-        }
-
-        try {
-            const user = await this.userService.getByEmail(email);
-            if (!user) {
-                throw new AppError("No such user with this email.", ErrorCodes.USER_NOT_FOUND, 400);
-            }
-            const profile = await this.getByUserId(user.id);
-            return profile;
-        } catch (e) {
-            if (e instanceof AppError) {
-                throw new AppError(e.message, e.code, e.status);
-            }
-            throw new Error("Error searching for profile.");
-        }
-    }
-
-    public async updateName(id: string, profileName: string): Promise<void> {
-        try {
-            const profile = await this.getById(id);
-            if (!profile) {
-                throw new AppError("Profile not found.", ErrorCodes.PROFILE_NOT_FOUND, 404);
-            }
-            await prisma.profiles.update({
-                where: { id },
-                data: {
-                    name: profileName,
-                }
-            });
-        } catch (e) {
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    console.error(e.message);
-                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            console.error(e);
-            throw new Error("Update name failed.");
-        }
-    }
-
-    public async updateRole(profileId: string, profileRole: Role): Promise<void> {
-        try {
-            const profile = await this.getById(profileId);
-            if (!profile) {
-                throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
-            }
-            if (profile.role != Role.ADMIN) {
-                throw new AuthorizationError("This user is not allowed to change its role.", ErrorCodes.ACESS_DENIED, 403);
-            }
-            await prisma.profiles.update({
-                where: { id: profileId },
-                data: {
-                    role: profileRole
-                }
-            });
-
-        } catch (e) {
-            if (e instanceof AuthorizationError) {
-                console.error(e.message);
-                throw new AuthorizationError(e.message, e.code, e.status);
-            }
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.PROFILE_NOT_FOUND) {
-                    throw new AppError(e.message, e.code, e.status);
-                }
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    console.error(e.message);
-                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, e.code, e.status);
-            }
-            console.error(e);
-            throw new Error("Role update failed.");
-        }
-    }
-
-    public async delete(id: string): Promise<void> {
-        try {
-            const user = await this.getById(id);
-            if (!user) {
-                throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 400);
-            }
-            await prisma.profiles.delete({
-                where: { id: id }
-            });
-        } catch (e) {
-            if (e instanceof AppError) {
-                if (e.code === ErrorCodes.INVALID_PROFILE_ID) {
-                    console.error(e.message);
-                    throw new AppError("Invalid Id.", ErrorCodes.INVALID_PROFILE_ID, 400);
-                }
-
-                if (e.code === ErrorCodes.PROFILE_NOT_FOUND) {
-                    console.error(e.message);
-                    throw new AppError("Profile does not exist.", ErrorCodes.PROFILE_NOT_FOUND, 404);
-                }
-                console.error(e.message);
-                throw new AppError(e.message, ErrorCodes.PROFILE_INTERNAL_ERROR, 500);
-            }
-            console.error(e);
-            throw new Error("Profile deletion failed.");
-        }
+    public async delete(profileId: string): Promise<void> {
+       
+        await this.profileRepository.delete(profileId);
+        
     }
 }
