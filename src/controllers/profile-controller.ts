@@ -1,87 +1,158 @@
-import { ProfileService } from "../services/profile-service.js";
+import { ProfileService } from "@/services/profile-service";
 import type { RequestHandler, Request, Response } from "express";
-import { ErrorCodes } from "../tools/errors/error.codes.js";
-import { AppError } from "../tools/errors/app-error.js";
-import type { UpdateProfileRequest, UpdateProfileInput } from "../interfaces/dtos/profile.js";
+import { ErrorCodes } from "@/tools/errors/error.codes"
+import { AppError } from "@/tools/errors/app-error";
+import { listProfilesSchema, profileIdSchema, updateProfileSchema } from "@schemas/profile-schema";
 
 export class ProfileController {
-    private readonly service: ProfileService;
-    
-    constructor(service: ProfileService) {
-        this.service = service;
+
+    constructor(private readonly profileService: ProfileService) { }
+
+    list: RequestHandler = async (req: Request, res: Response) => {
+
+        const filterValidation = listProfilesSchema.safeParse(req.body);
+
+        if (!filterValidation.success) {
+
+            return res.status(422).json({ message: "Invalid filtering options." });
+
+        }
+
+        try {
+
+            const profiles = await this.profileService.list(filterValidation.data);
+
+            return res.status(200).json(profiles);
+
+        } catch (e) {
+
+            let status = 500;
+            let message = "Internal error.";
+
+            if (e instanceof AppError && e.code === ErrorCodes.UNEXPECTED_DATABASE_ERROR) {
+
+                message = e.message;
+                return res.status(status).json({ message });
+
+            }
+
+            console.error(e);
+            return res.status(status).json({ message });
+
+        }
+
     }
 
-    getAll: RequestHandler = async (req: Request, res: Response) => {   
-        try {
-            const profiles = await this.service.getAll();
-            if (!profiles) {
-                return res.status(404).json({message: "No profiles were found.", code: ErrorCodes.PROFILE_NOT_FOUND});
-            }
-            return res.status(200).json({profiles});
-        } catch (e) {
-            if (e instanceof AppError) {
-                return res.status(e.status).json({message: e.message, code: e.code});
-            }
-            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
-        }
-    }
+    find: RequestHandler = async (req: Request, res: Response) => {
 
-    getById: RequestHandler = async (req: Request, res: Response) => {
-        try {
-            const id: string = String(req.params.id);
-            const profile = await this.service.getById(id);
+        const idValidation = profileIdSchema.safeParse(req.params);
 
-            if(!profile) {
-                return res.status(404).json({message: "Profile not found.", code: ErrorCodes.PROFILE_NOT_FOUND});
-            }
-            return res.status(200).json({profile});
-        } catch (e) {
-             if (e instanceof AppError) {
-                return res.status(e.status).json({message: e.message, code: e.code});
-            }
-            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+        if (!idValidation.success) {
+
+            return res.status(400).json({ message: "Profile id is invalid or not provided." });
+
         }
+
+        try {
+
+            const profile = await this.profileService.find(idValidation.data.id);
+
+            if (!profile) {
+
+                return res.status(404).json({ message: "Profile not found." });
+
+            }
+
+            return res.status(200).json({ profile });
+
+        } catch (e) {
+
+            if (e instanceof AppError && e.code === ErrorCodes.UNEXPECTED_DATABASE_ERROR) {
+
+                return res.status(500).json({ message: e.message });
+
+            }
+
+            console.error(e);
+            return res.status(500).json({ message: "Internal error." });
+
+        }
+
     }
 
     update: RequestHandler = async (req: Request, res: Response) => {
-        const id: string = String(req.params.id);
-        const profileData: UpdateProfileRequest = req.body;
-        let profile: UpdateProfileInput = {};
+
+        const profileIdValidation = profileIdSchema.safeParse(req.params);
+
+        if (!profileIdValidation.success) {
+            return res.status(404).json({ message: "Profile Id is invalid or not provided." });
+        }
+
+        const profileUpdateDataValidation = updateProfileSchema.safeParse(req.body);
+
+        if (!profileUpdateDataValidation.success) {
+            return res.status(422).json({ message: "Invalid updating data." });
+        }
+
         try {
 
-            if (Object.entries(profileData).length < 1) {
-                return res.status(400).json({message: "Fields must not be empty."});
-            }
+            const updatedProfile = await this.profileService.update(
+                profileIdValidation.data.id, profileUpdateDataValidation.data
+            );
 
-            if ("name" in profileData) {
-                profile.name = profileData.name
-                await this.service.updateName(id, profile.name); 
-            }
+            return res.status(200).json({ message: "Profile updated successfully.", profile: updatedProfile });
 
-            if ("role" in profileData) {
-                profile.role = profileData.role
-                await this.service.updateRole(id, profile.role)
-            }
-            
-            return res.status(200).json({message: "Profile updated successfully."});
         } catch (e) {
-             if (e instanceof AppError) {
-                return res.status(e.status).json({message: e.message, code: e.code});
+
+            if (e instanceof AppError) {
+
+                if (e.code === ErrorCodes.RECORD_NOT_FOUND) {
+
+                    return res.status(404).json({ message: "Profile not found." });
+
+                }
+
+                return res.status(500).json({ message: e.message });
+
             }
-            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+
+            console.error(e);
+            return res.status(500).json("Internal error.");
+
         }
     }
 
-    delete: RequestHandler = async (req: Request, res: Response) => { 
-        const id: string = String(req.params.id);
+    delete: RequestHandler = async (req: Request, res: Response) => {
+
+        const profileIdValidation = profileIdSchema.safeParse(req.params);
+
+        if (!profileIdValidation.success) {
+
+            return res.status(400).json({ message: "Profile Id is invalid or not provided." });
+
+        }
+
         try {
-            await this.service.delete(id);
-            return res.status(200).json({message: "Profile deleted successfully."});
+
+            await this.profileService.delete(profileIdValidation.data.id);
+
+            return res.status(200).json({ message: "Profile deleted successfully." });
+
         } catch (e) {
+
             if (e instanceof AppError) {
-                return res.status(e.status).json({message: e.message, code: e.code});
+
+                if (e.code === ErrorCodes.RECORD_NOT_FOUND) {
+
+                    return res.status(404).json({ message: "Profile not found." });
+
+                }
+
+                return res.status(500).json({ message: e.message });
+
             }
-            return res.status(500).json({message: "Internal error.", code: ErrorCodes.PROFILE_INTERNAL_ERROR});
+
+            return res.status(500).json({ message: "Internal server error." });
         }
     }
 }
