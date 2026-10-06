@@ -9,7 +9,7 @@ export interface UserRepository {
 
     find(userId: string): Promise<GetUserResponse | null>;
 
-    update(userId: string, userData: UpdateUserInput): Promise<void>;
+    update(userId: string, userData: UpdateUserInput): Promise<GetUserResponse>;
 
     delete(userId: string): Promise<void>;
 

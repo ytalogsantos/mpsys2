@@ -1,4 +1,4 @@
-import { AuthenticationError } from "../tools/errors/authentication-error.js";
+import { AuthenticationError } from "@/tools/errors/authentication-error.js";
 import { RegistrationError } from "../tools/errors/registration-error.js";
 import { ProfileService } from "../services/profile-service.js";
 import { ErrorCodes } from "../tools/errors/error.codes.js";

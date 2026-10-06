@@ -1,6 +1,10 @@
 import * as z from "zod";
 
-const createPasswordSchema = z
+export const userIdParamSchema = z.object({
+    id: z.uuid()
+});
+
+export const createPasswordSchema = z
     .string()
     .regex(/^(?=.{8,64}$)\S+$/);
 
@@ -19,7 +23,7 @@ const userRoleSchema = z.enum(
     { error: "Invalid user role." }
 );
 
-const createUserSchema = z.object({
+export const createUserSchema = z.object({
     email: z.email(),
     password: z
         .string()
@@ -27,7 +31,7 @@ const createUserSchema = z.object({
         .pipe(createPasswordSchema)
 });
 
-const listUsersSchema = z.object({
+export const listUsersSchema = z.object({
     role: z
         .string()
         .trim()
@@ -43,7 +47,7 @@ const listUsersSchema = z.object({
         .optional()
 });
 
-const updateUserSchema = z.object({
+export const updateUserSchema = z.object({
     email: z
         .email()
         .optional(),
@@ -55,14 +59,6 @@ const updateUserSchema = z.object({
 });
 
 
-type CreateUserInput = z.infer<typeof createUserSchema>;
-type ListUsersInput = z.infer<typeof listUsersSchema>;
-type UpdateUserInput = z.infer<typeof updateUserSchema>;
-
-export type
-{
-    createPasswordSchema,
-    CreateUserInput,
-    ListUsersInput,
-    UpdateUserInput
-}
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+export type ListUsersInput = z.infer<typeof listUsersSchema>;
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;

@@ -1,10 +1,14 @@
-import { prisma } from "../config/db.js";
-import { Prisma, Role } from "../../generated/prisma/client.js";
-import { AppError } from "../tools/errors/app-error.js";
-import { ErrorCodes } from "../tools/errors/error.codes.js";
-import { AuthorizationError } from "../tools/errors/authorization-error.js";
-import type { CreateNoteInput, CreateNoteResponse, GetNoteResponse, UpdateNoteInput } from "../interfaces/dtos/note.js";
-import type { ProfileService } from "./profile-service.js";
+import { prisma } from "@/config/db";
+import { Prisma, Role } from "@generated/prisma/client";
+import { AppError } from "@/tools/errors/app-error";
+import { ErrorCodes } from "@/tools/errors/error.codes";
+import type { 
+    CreateNoteInput, 
+    CreateNoteResponse, 
+    GetNoteResponse, 
+    UpdateNoteInput 
+} from "@/interfaces/dtos/note";
+import type { ProfileService } from "@services/profile-service";
 
 export class NoteService {
     private readonly profileService: ProfileService;
