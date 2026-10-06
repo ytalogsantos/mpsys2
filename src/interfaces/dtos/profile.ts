@@ -10,13 +10,3 @@ export interface GetProfileResponse {
     name: string,
     // maintenance_notes: 
 }
-
-export interface UpdateProfileRequest {
-    name?: string,
-    role?: Role,
-}
-
-export interface UpdateProfileInput {
-    name?: string,
-    role?: Role,
-}

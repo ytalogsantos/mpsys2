@@ -14,7 +14,7 @@ const createProfileSchema = z.object({
 });
 
 export const listProfilesSchema = z.object({
-    name: profileNameSchema
+    name: profileNameSchema.optional(),
 });
 
 export const updateProfileSchema = z.object({

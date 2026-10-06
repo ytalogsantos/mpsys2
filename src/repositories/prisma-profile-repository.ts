@@ -36,22 +36,30 @@ export class PrismaProfileRepository implements ProfileRepository {
 
     public async list(profileFilters: ListProfilesInput): Promise<GetProfileResponse[]> {
 
+        const profileData = {
+            ...(profileFilters.name && {
+                name: {
+                    startsWith: profileFilters.name
+                }
+            }),
+        };
+
         try {
 
             return await prisma.profile.findMany({
-                where: profileFilters
+                where: profileData
             });
 
         } catch (e) {
 
-            if (e instanceof Prisma.PrismaClientKnownRequestError) { 
-                
+            if (e instanceof Prisma.PrismaClientKnownRequestError) {
+
                 throw new AppError(e.message, ErrorCodes.UNEXPECTED_DATABASE_ERROR);
 
             }
 
             throw e;
-            
+
         }
 
     }
@@ -110,11 +118,11 @@ export class PrismaProfileRepository implements ProfileRepository {
             throw e;
 
         }
-        
+
     }
 
     public async delete(profileId: string): Promise<void> {
-        
+
         try {
 
             await prisma.profile.delete({
@@ -136,7 +144,7 @@ export class PrismaProfileRepository implements ProfileRepository {
             }
 
             throw e;
-            
+
         }
     }
 
