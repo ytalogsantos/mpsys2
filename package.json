@@ -8,8 +8,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx prisma generate && npx tsc",
-    "dev": "npx tsc && node dist/server.js"
+    "build": "tsc && tsc-alias",
+    "dev": "tsx watch server.ts",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
@@ -28,6 +30,8 @@
     "@types/node": "^25.2.0",
     "@types/pg": "^8.16.0",
     "prisma": "^7.10.0",
+    "tsc-alias": "^1.9.7",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   }
 }

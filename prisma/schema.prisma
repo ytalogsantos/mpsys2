@@ -37,6 +37,15 @@ model Profile {
   user_id           String              @unique @db.Uuid
   name              String              
   maintenance_notes MaintenanceNote[]
+  sessions          Session[]
+}
+
+model Session {
+  @@map("sessions")
+  id          String    @id
+  profile     Profile   @relation(fields: [profile_id], references: [id])
+  profile_id  String    @db.Uuid
+  extires_at  DateTime  @db.Timestamptz(6)
 }
 
 enum Role {

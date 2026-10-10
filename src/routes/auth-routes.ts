@@ -1,17 +1,17 @@
-import express from "express";
-import { AuthController } from "../controllers/auth-controller.js";
-import { UserService } from "../services/user-service.js";
-import { ProfileService } from "../services/profile-service.js";
-import { AuthService } from "../services/auth-service.js";
+// import express from "express";
+// import { AuthController } from "../controllers/auth-controller.js";
+// import { UserService } from "../services/user-service.js";
+// import { ProfileService } from "../services/profile-service.js";
+// import { AuthService } from "../services/auth-service.js";
 
-const userService = new UserService();
-const profileService = new ProfileService(userService);
-const registerService = new AuthService(userService, profileService);
-const authController = new AuthController(registerService);
-const authRouter = express.Router();
+// const userService = new UserService();
+// const profileService = new ProfileService(userService);
+// const registerService = new AuthService(userService, profileService);
+// const authController = new AuthController(registerService);
+// const authRouter = express.Router();
 
-authRouter.post("/auth/register", authController.register);
-authRouter.post("/auth/login", authController.login);
+// authRouter.post("/auth/register", authController.register);
+// authRouter.post("/auth/login", authController.login);
 
 
-export { authRouter };
+// export { authRouter };
